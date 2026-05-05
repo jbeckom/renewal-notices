@@ -1,5 +1,7 @@
 from pathlib import Path
+from datetime import date 
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 # --------------------------------------------------
 # PATH SETUP
@@ -75,6 +77,117 @@ def validate_columns(df: pd.DataFrame, file_name: str) -> bool:
     print(f"✅ Column validation PASSED for: {file_name}\n")
     return True
 
+def clean_id(value) -> str:
+    """
+    Remove the leading # symbol from ID fields and return clean text.
+    """
+
+    return str(value).replace("#","").strip()
+
+def format_currency(value) -> str:
+    """
+    Convert a raw currency value into a standard dollar format.
+    """
+
+    try:
+        cleaned = str(value).replace("$","").replace(",","").strip()
+        return f"${float(cleaned):,.2f}"
+    except Exception:
+        return "$0.00"
+    
+def format_date(value) -> str:
+    """
+    Convert a raw date value into M/D/YYYY format.
+    """
+
+    parsed_date = pd.to_datetime(value).date()
+    return parsed_date.strftime("%-m/%-d/%Y")
+
+def build_customer_name(row: pd.Series) -> str:
+    """
+    Build the display name for the customer.
+
+    Rule:
+    - If a company name exists:
+        Company Name
+        Attn: First Last
+    - Otherwise:
+        First Last
+    """
+
+    company = clean_text(row.get("Customer Company Name", ""))
+    first = clean_text(row.get("Customer First name", ""))
+    last = clean_text(row.get("Customer Last Name", ""))
+
+    full_name = f"{first} {last}".strip()
+
+    # Handle NaN values (pands can treat empty cells as 'nan')
+    if company and company.lower() != "nan":
+        if full_name:
+            return f"{company}\nAttn: {full_name}"
+        return company
+    
+    return full_name
+
+def build_service_address(row: pd.Series) -> str:
+    """
+    Build a multi-line service address from location fields.
+    """
+
+    address = str(row.get("Location Address","")).strip()
+    city = str(row.get("City","")).strip()
+    state = str(row.get("State","")).strip()
+    zip_code = str(row.get("Zip Code","")).strip()
+
+    return f"{address}\n{city}, {state} {zip_code}"
+
+def build_renewal_record(row: pd.Series, location: str) -> dict:
+    """
+    Convert one CSV row into one clean renewal notice record.
+
+    This clean record is what future steps will use for:
+    - PDF generation
+    - email generation
+    - logging
+    - API enrichment
+    """
+
+    expiration_date = pd.to_datetime(row["SCA End Date"]).date()
+    coverage_through = expiration_date + relativedelta(years=1)
+
+    return {
+        "location":location,
+        "run_date":date.today().strftime("%-m/%-d/%Y"),
+        "account_number":clean_id(row["Customer #"]),
+        "agreement_id":clean_id(row["#ID"]),
+        "customer_name":build_customer_name(row),
+        "service_address":build_service_address(row),
+        "billing_address":None,
+        "agreement_type":str(row["Title"]).strip(),
+        "expiration_date":expiration_date.strftime("%-m/%-d/%Y"),
+        "coverage_through":coverage_through.strftime("%-m/%-d/%Y"),
+        "payment_due_date":expiration_date.strftime("%-m/%-d/%Y"),
+        "total_price":format_currency(row["Total Annual Fee"]),
+    }
+
+def clean_text(value) -> str:
+    """
+    Normalize text fields by removing placeholder values.
+
+    Treats the following as empty:
+    - None
+    - NaN
+    - "-"
+    - empty strings
+    """
+
+    text = str(value).strip()
+
+    if text.lower() in ("nan","","-"):
+        return ""
+    
+    return text
+
 # --------------------------------------------------
 # MAIN PROCESS
 # --------------------------------------------------
@@ -109,7 +222,13 @@ def main():
             print(f"⛔️ Skipping file due to validation failure\n")
             continue
 
-        print(f"✅ File is ready for next processing step\n")
+        first_record = build_renewal_record(df.iloc[0], location)
+
+        print("✔ File is ready for next processing step.")
+        print("Sample renewal record:")
+        for key, value in first_record.items():
+            print(f" {key}: {value}")
+        print()
 
 # --------------------------------------------------
 
