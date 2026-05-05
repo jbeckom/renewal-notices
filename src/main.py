@@ -117,7 +117,7 @@ def build_customer_name(row: pd.Series) -> str:
 
     company = clean_text(row.get("Customer Company Name", ""))
     first = clean_text(row.get("Customer First name", ""))
-    last = clean_text(row.get("Customer Last Name", ""))
+    last = clean_text(row.get("Customer Last Name", "")).strip()
 
     full_name = f"{first} {last}".strip()
 
@@ -131,15 +131,27 @@ def build_customer_name(row: pd.Series) -> str:
 
 def build_service_address(row: pd.Series) -> str:
     """
-    Build a multi-line service address from location fields.
+    Build a multi-line service address.
+
+    The Location Address field from export inclues the full address:
+        Street, City, State ZIP
+
+    Since City, State, and Zip Code are also provided as separate fields, 
+    we use those separate fields as the source of truth and only extract 
+    the street address from Location Address.
     """
 
-    address = str(row.get("Location Address","")).strip()
-    city = str(row.get("City","")).strip()
-    state = str(row.get("State","")).strip()
-    zip_code = str(row.get("Zip Code","")).strip()
+    full_location_address = clean_text(row.get("Location Address"))
+    city = clean_text(row.get("City"))
+    state = clean_text(row.get("State"))
+    zip_code = clean_text(row.get("Zip Code"))
 
-    return f"{address}\n{city}, {state} {zip_code}"
+    # Location Address appears to be comma-separated:
+    # "3301 West University Avenue, Muncie, Indiana 47304"
+    # The first segment is the street address.
+    street_address = full_location_address.split(",")[0].strip()
+
+    return f"{street_address}\n{city}, {state} {zip_code}"
 
 def build_renewal_record(row: pd.Series, location: str) -> dict:
     """
@@ -169,6 +181,26 @@ def build_renewal_record(row: pd.Series, location: str) -> dict:
         "payment_due_date":expiration_date.strftime("%-m/%-d/%Y"),
         "total_price":format_currency(row["Total Annual Fee"]),
     }
+
+def build_renewal_records(df: pd.DataFrame, location: str) -> list[dict]:
+    """
+    Convert all rows in a validated CSV into clean renewal records.
+
+    Args:
+        df: Validated renewal export DataFrame
+        location: Location code detected from file name
+
+    Returns:
+        A list of clean renewal record dictionaries
+    """
+
+    records = []
+
+    for _, row in df.iterrows():
+        record = build_renewal_record(row, location)
+        records.append(record)
+
+    return records
 
 def clean_text(value) -> str:
     """
@@ -222,12 +254,20 @@ def main():
             print(f"⛔️ Skipping file due to validation failure\n")
             continue
 
-        first_record = build_renewal_record(df.iloc[0], location)
+        records = build_renewal_records(df, location)
 
-        print("✔ File is ready for next processing step.")
-        print("Sample renewal record:")
-        for key, value in first_record.items():
-            print(f" {key}: {value}")
+        print("✔ File is ready for next processing step")
+        print(f"Rows in file: {len(df)}")
+        print(f"Records created: {len(records)}")
+
+        print("\nFirst sample record:")
+        for key, value in records[0].items():
+            print(f"  {key}: {value}")
+
+        print("\nLast sample record:")
+        for key, value in records[-1].items():
+            print(f"  {key}: {value}")
+
         print()
 
 # --------------------------------------------------
