@@ -1,5 +1,6 @@
 import pandas as pd
-from config import INCOMING_DIR, CSV_HEADER_ROW
+from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR
+from pdf_generator import generate_test_pdf
 from utils import (
     detect_location,
     validate_columns,
@@ -53,6 +54,14 @@ def main():
         print("\nLast sample record:")
         for key, value in records[-1].items():
             print(f"  {key}: {value}")
+
+        test_output_dir = OUTPUT_DIR / "test"
+        test_output_dir.mkdir(parents=True, exist_ok=True)
+
+        test_pdf_path = test_output_dir / f"test_{location}_{records[0]['agreement_id']}.pdf"
+        generate_test_pdf(records[0], test_pdf_path)
+
+        print(f"Test PDF created: {test_pdf_path}")
 
         print()
 

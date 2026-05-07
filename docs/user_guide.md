@@ -102,3 +102,7 @@ Certain placeholder values in the source data are treated as empty:
 This prevents placeholder data from appearing on renewal notices.
 
 
+## PDF Generation
+The application includes a PDF generation module.
+
+Current PDF functionality is limited to creating a basic test PDF from the first renewal record in each CSV file.  This validates that PDF output works before the final renewal notice layout is built.
