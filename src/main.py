@@ -1,5 +1,5 @@
 import pandas as pd
-from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR
+from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO
 from pdf_generator import (
     generate_test_pdf,
     generate_renewal_notice_pdf,
@@ -73,7 +73,8 @@ def main():
 
         generate_renewal_notice_pdf(
             records[0],
-            renewal_pdf_path
+            renewal_pdf_path,
+            COMPANY_INFO[location]
         )
 
         print(f"Renewal PDF created: {renewal_pdf_path}")

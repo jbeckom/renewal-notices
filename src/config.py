@@ -17,3 +17,18 @@ LOCATION_NAMES = {
     "AN": "Anderson",
     "MU": "Muncie",
 }
+
+COMPANY_INFO = {
+    "AN": {
+        "name": "Summers Plumbing Heating & Cooling",
+        "address": "3423 Columbus Ave, Anderson, IN 46013",
+        "phone": "765.644.4328",
+        "website": "www.summersphc.com"
+    },
+    "MU": {
+        "name": "Summers Plumbing Heating & Cooling",
+        "address": "3700 S Hoyt Ave, Muncie, IN 47302",
+        "phone": "765.399.4328",
+        "website": "www.summersphc.com"
+    }
+}

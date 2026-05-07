@@ -50,7 +50,7 @@ def generate_test_pdf(record: dict, output_path: Path) -> None:
     c.save()
 
 
-def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
+def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: dict) -> None:
     """
     Generate a structured renewal notice PDF.
 
@@ -62,12 +62,29 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
 
     width, height = LETTER
 
+    TOP_OFFSET = -40
+
     # --------------------------------------------------
-    # HEADER
+    # COMPANY HEADER
+    # --------------------------------------------------
+
+    c.setFont("Helvetica-Bold", 12)
+    c.drawCentredString(width / 2, 760, company_info["name"])
+
+    c.setFont("Helvetica", 9)
+    c.drawCentredString(width / 2, 746, company_info["address"])
+    c.drawCentredString(
+        width / 2,
+        732,
+        f"{company_info['phone']} | {company_info['website']}"
+    )
+
+    # --------------------------------------------------
+    # NOTICE TITLE
     # --------------------------------------------------
 
     c.setFont("Helvetica-Bold", 16)
-    c.drawCentredString(width / 2, 750, "Renewal Notice")
+    c.drawCentredString(width / 2, 700, "Renewal Notice")
 
     # --------------------------------------------------
     # ACCOUNT INFO
@@ -77,13 +94,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
 
     c.drawString(
         72,
-        710,
+        670 + TOP_OFFSET,
         f"Account #: {record['account_number']}"
     )
 
     c.drawRightString(
         width - 72,
-        710,
+        670 + TOP_OFFSET,
         f"Date: {record['run_date']}"
     )
 
@@ -92,33 +109,33 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
     # --------------------------------------------------
 
     # Left box (billing/customer)
-    c.rect(72, 580, 220, 100)
+    c.rect(72, 580 + TOP_OFFSET, 220, 100)
 
     # Right box (service address)
-    c.rect(320, 580, 220, 100)
+    c.rect(320, 580 + TOP_OFFSET, 220, 100)
 
     c.setFont("Helvetica", 10)
 
     draw_multiline_text(
         c,
         82,
-        660,
+        660 + TOP_OFFSET,
         record["customer_name"]
     )
 
     draw_multiline_text(
         c,
         82,
-        620,
+        620 + TOP_OFFSET,
         record["service_address"]
     )
 
-    c.drawString(330, 660, "Service Address:")
+    c.drawString(330, 660 + TOP_OFFSET, "Service Address:")
 
     draw_multiline_text(
         c,
         330,
-        640,
+        640 + TOP_OFFSET,
         record["service_address"]
     )
 
@@ -130,7 +147,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
 
     c.drawString(
         72,
-        530,
+        530 + TOP_OFFSET,
         f"Renewal for Agreement #: {record['agreement_id']}"
     )
 
@@ -138,19 +155,19 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
 
     c.drawString(
         72,
-        490,
+        490 + TOP_OFFSET,
         f"Agreement Type: {record['agreement_type']}"
     )
 
     c.drawString(
         72,
-        465,
+        465 + TOP_OFFSET,
         f"Coverage Through: {record['coverage_through']}"
     )
 
     c.drawString(
         72,
-        440,
+        440 + TOP_OFFSET,
         f"Total Agreement Price: {record['total_price']}"
     )
 
@@ -162,13 +179,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path) -> None:
 
     c.drawString(
         72,
-        390,
+        390 + TOP_OFFSET,
         f"Payment Due Date: {record['payment_due_date']}"
     )
 
     c.drawString(
         72,
-        365,
+        365 + TOP_OFFSET,
         f"Amount Due: {record['total_price']}"
     )
 
