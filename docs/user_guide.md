@@ -15,7 +15,7 @@ The tool does not yet:
 
 - PDF Generation using company letterhead
 - Email delivery of renewal notices
-- API integration to retireve billing addresses
+- API integration to retrieve billing addresses
 - Logging and exception reporting
 
 
@@ -102,7 +102,15 @@ Certain placeholder values in the source data are treated as empty:
 This prevents placeholder data from appearing on renewal notices.
 
 
-## PDF Generation
-The application includes a PDF generation module.
+## Structured PDF Generation
+The PDF generation module now supports structured renewal notice rendering.
 
-Current PDF functionality is limited to creating a basic test PDF from the first renewal record in each CSV file.  This validates that PDF output works before the final renewal notice layout is built.
+The current layout includes:
+- Renewal notice header
+- Account information
+- Customer information
+- Service address
+- Agreement details
+- Payment details
+
+Branding, logos, and final styling are still in development.
