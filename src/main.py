@@ -8,6 +8,7 @@ from utils import (
     detect_location,
     validate_columns,
     build_renewal_records,
+    build_pdf_filename
 )
 
 # --------------------------------------------------
@@ -68,7 +69,7 @@ def main():
 
         renewal_pdf_path = (
             test_output_dir /
-            f"renewal_{location}_{records[0]['agreement_id']}.pdf"
+            build_pdf_filename(records[0])
         )
 
         generate_renewal_notice_pdf(
