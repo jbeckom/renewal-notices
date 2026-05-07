@@ -1,5 +1,6 @@
 import pandas as pd
-from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO
+from logger import write_run_summary
+from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO, LOGS_DIR
 from pdf_generator import (
     generate_test_pdf,
     generate_renewal_notice_pdf,
@@ -18,6 +19,7 @@ from utils import (
 
 def main():
     csv_files = list(INCOMING_DIR.glob("*.csv"))
+    run_summary_log = LOGS_DIR / "run_summary.csv"
 
     if not csv_files:
         print(f"No CSV files found in: {INCOMING_DIR}")
@@ -74,6 +76,16 @@ def main():
             pdf_count += 1
         
         print(f"Renewal PDFs created: {pdf_count}")
+
+        write_run_summary(
+            log_path=run_summary_log,
+            file_name=file_path.name,
+            location=location,
+            rows_in_file=len(df),
+            records_created=len(records),
+            pdfs_created=pdf_count,
+            status="SUCCESS",
+        )
 
         print()
 
