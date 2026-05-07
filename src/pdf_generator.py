@@ -105,38 +105,47 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     )
 
     # --------------------------------------------------
-    # ADDRESS BOXES
+    # CUSTOMER INFO/ADDRESS BOX
     # --------------------------------------------------
 
-    # Left box (billing/customer)
-    c.rect(72, 580 + TOP_OFFSET, 220, 100)
+    box_x = 72
+    box_y = 540 + TOP_OFFSET
+    box_width = 468
+    box_height = 110
+    divider_x = box_x + (box_width / 2)
 
-    # Right box (service address)
-    c.rect(320, 580 + TOP_OFFSET, 220, 100)
+    left_x = box_x + 10
+    right_x = divider_x + 10
+    text_top_y = box_y + box_height -20
+
+    # Outer box
+    c.rect(box_x, box_y, box_width, box_height)
 
     c.setFont("Helvetica", 10)
 
-    draw_multiline_text(
+    # Left side: customer/billing placeholder
+    left_y = draw_multiline_text(
         c,
-        82,
-        660 + TOP_OFFSET,
-        record["customer_name"]
+        left_x,
+        text_top_y,
+        record['customer_name']
     )
 
     draw_multiline_text(
         c,
-        82,
-        620 + TOP_OFFSET,
-        record["service_address"]
+        left_x,
+        left_y,
+        record['service_address']
     )
 
-    c.drawString(330, 660 + TOP_OFFSET, "Service Address:")
+    # Right side: service address
+    c.drawString(right_x, text_top_y, "Service Address:")
 
     draw_multiline_text(
         c,
-        330,
-        640 + TOP_OFFSET,
-        record["service_address"]
+        right_x,
+        text_top_y - 20,
+        record['service_address']
     )
 
     # --------------------------------------------------
