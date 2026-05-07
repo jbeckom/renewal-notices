@@ -224,6 +224,7 @@ def build_pdf_filename(record: dict) -> str:
 
     exp_date = record['expiration_date']
     agreement_id = record['agreement_id']
+    location = record['location'].lower()
     
     #  Use only the first line fo customer_name
     customer_name = record['customer_name'].split("\n")[0].lower()
@@ -238,6 +239,30 @@ def build_pdf_filename(record: dict) -> str:
 
     return (
         f"{yymm}-renewal-"
+        f"{location}-"
         f"{agreement_id}-"
         f"{customer_slug}.pdf"
     )
+
+def build_output_directory(base_output_dir: Path, record: dict) -> Path:
+    """
+    Build the output directory structure for renewal PDFs.
+
+    Structure:
+        output/{yymm}/{location}
+    """
+
+    expiration_date = pd.to_datetime(record['expiration_date'])
+    yymm = expiration_date.strftime("%y%m")
+
+    location = record['location'].lower()
+
+    output_dir = (
+        base_output_dir /
+        yymm / 
+        location
+    )
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    return output_dir

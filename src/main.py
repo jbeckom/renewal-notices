@@ -8,7 +8,8 @@ from utils import (
     detect_location,
     validate_columns,
     build_renewal_records,
-    build_pdf_filename
+    build_pdf_filename,
+    build_output_directory,
 )
 
 # --------------------------------------------------
@@ -51,27 +52,16 @@ def main():
         print(f"Rows in file: {len(df)}")
         print(f"Records created: {len(records)}")
 
-        print("\nFirst sample record:")
-        for key, value in records[0].items():
-            print(f"  {key}: {value}")
-
-        print("\nLast sample record:")
-        for key, value in records[-1].items():
-            print(f"  {key}: {value}")
-
-        test_output_dir = OUTPUT_DIR / "test"
-        test_output_dir.mkdir(parents=True, exist_ok=True)
-
-        test_pdf_path = test_output_dir / f"test_{location}_{records[0]['agreement_id']}.pdf"
-        generate_test_pdf(records[0], test_pdf_path)
-
-        print(f"Test PDF created: {test_pdf_path}")
-
         pdf_count = 0
 
         for record in records:
+            output_dir = build_output_directory(
+                OUTPUT_DIR,
+                record
+            )
+
             renewal_pdf_path = (
-                test_output_dir /
+                output_dir / 
                 build_pdf_filename(record)
             )
 
