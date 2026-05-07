@@ -1,18 +1,10 @@
 import pandas as pd
-from pathlib import Path
+from config import INCOMING_DIR, CSV_HEADER_ROW
 from utils import (
     detect_location,
     validate_columns,
     build_renewal_records,
 )
-
-# --------------------------------------------------
-# PATH SETUP
-# --------------------------------------------------
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-INCOMING_DIR = BASE_DIR / "data" / "incoming"
-
 
 # --------------------------------------------------
 # MAIN PROCESS
@@ -25,7 +17,7 @@ def main():
         print(f"No CSV files found in: {INCOMING_DIR}")
         return
     
-    print (f"found {len(csv_files)} CSV file(s).\n")
+    print(f"Found {len(csv_files)} CSV file(s).\n")
 
     for file_path in csv_files:
         print(f"Processing file: {file_path.name}")
@@ -35,7 +27,7 @@ def main():
 
         # IMPORTANT: header=1 due to FieldPulse CSV output headers are on row 2
         try:
-            df = pd.read_csv(file_path, header=1)
+            df = pd.read_csv(file_path, header=CSV_HEADER_ROW)
         except Exception as e:
             print(f"❌ Failed to read file: {file_path.name}")
             print(f"  Error: {e}\n")

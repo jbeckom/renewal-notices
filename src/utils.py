@@ -169,7 +169,7 @@ def build_renewal_record(row: pd.Series, location: str) -> dict:
         "service_address": build_service_address(row),
         "billing_address": None,
         "agreement_type": clean_text(row["Title"]),
-        "expiration_date": expiration_date.strftime("%-m/%-d/%Y"),
+        "expiration_date": format_date(row["SCA End Date"]),
         "coverage_through": coverage_through.strftime("%-m/%-d/%Y"),
         "payment_due_date": expiration_date.strftime("%-m/%-d/%Y"),
         "total_price": format_currency(row["Total Annual Fee"]),
