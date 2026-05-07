@@ -67,18 +67,23 @@ def main():
 
         print(f"Test PDF created: {test_pdf_path}")
 
-        renewal_pdf_path = (
-            test_output_dir /
-            build_pdf_filename(records[0])
-        )
+        pdf_count = 0
 
-        generate_renewal_notice_pdf(
-            records[0],
-            renewal_pdf_path,
-            COMPANY_INFO[location]
-        )
+        for record in records:
+            renewal_pdf_path = (
+                test_output_dir /
+                build_pdf_filename(record)
+            )
 
-        print(f"Renewal PDF created: {renewal_pdf_path}")
+            generate_renewal_notice_pdf(
+                record,
+                renewal_pdf_path,
+                COMPANY_INFO[location]
+            )
+
+            pdf_count += 1
+        
+        print(f"Renewal PDFs created: {pdf_count}")
 
         print()
 

@@ -128,3 +128,9 @@ Filename details:
 - 'agreement_id' is the renewal agreement number
 - 'customer_name' is normalized into filesystem-safe text
 - Special characters and spaces are converted to hyphens
+
+
+## PDF Batch Generation
+After validation and record creation, the application generates one PDF renewal notice for each renewal record.
+
+The number of PDFs created should match the number of records created from the CSV file.
