@@ -114,3 +114,17 @@ The current layout includes:
 - Payment details
 
 Branding, logos, and final styling are still in development.
+
+
+## PDF Naming Convention
+Renewal notice PDFs use the folling naming fomat:
+    '{yymm}-renewal-{agreement_id}-{customer_name}.pdf'
+
+Example:
+    '0626-renewal-13661-grace-recovery-and-wellness.pdf'
+
+Filename details:
+- 'yymm' is based on the agreement expiration date
+- 'agreement_id' is the renewal agreement number
+- 'customer_name' is normalized into filesystem-safe text
+- Special characters and spaces are converted to hyphens

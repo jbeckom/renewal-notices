@@ -1,6 +1,7 @@
+import re
+import pandas as pd
 from pathlib import Path
 from datetime import date 
-import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 # --------------------------------------------------
@@ -212,3 +213,31 @@ def clean_text(value) -> str:
         return ""
     
     return text
+
+def build_pdf_filename(record: dict) -> str:
+    """
+    Build a standardized PDF filename.
+
+    Format:
+        {yymm}-renewal-{agreement_id}-{customer_name}.pdf
+    """
+
+    exp_date = record['expiration_date']
+    agreement_id = record['agreement_id']
+    
+    #  Use only the first line fo customer_name
+    customer_name = record['customer_name'].split("\n")[0].lower()
+
+    # Replace non-alphanumeric characters with hyphens
+    customer_slug = re.sub(r"[^a-z0-9]+", "-", customer_name)
+
+    # Remove leading/trailing hyphens
+    customer_slug = customer_slug.strip("-")
+
+    yymm = pd.to_datetime(exp_date).strftime("%y%m")
+
+    return (
+        f"{yymm}-renewal-"
+        f"{agreement_id}-"
+        f"{customer_slug}.pdf"
+    )
