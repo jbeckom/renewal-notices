@@ -13,12 +13,23 @@ RUN_SUMMARY_COLUMNS = [
     "status"
 ]
 
+PDF_DETAIL_COLUMNS = [
+    "run_timestamp",
+    "source_file",
+    "location",
+    "agreement_id",
+    "account_number",
+    "customer_name",
+    "pdf_path",
+    "status",
+]
+
 
 def write_run_summary(
         log_path: Path,
         file_name: str,
         location: str,
-        rows_in_file: str,
+        rows_in_file: int,
         records_created: int,
         pdfs_created: int,
         status: str,
@@ -46,5 +57,40 @@ def write_run_summary(
             "rows_in_file": rows_in_file,
             "records_created": records_created,
             "pdfs_created": pdfs_created,
+            "status": status,
+        })
+
+
+def write_pdf_detail(
+        log_path: Path,
+        source_file: str,
+        record: dict,
+        pdf_path: Path,
+        status: str,
+) -> None:
+    """
+    Append one row to the PDF detail CSV log.
+
+    This creates a record-level audit trail showing which renewal records generated which PDF files.
+    """
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    file_exists = log_path.exists()
+
+    with log_path.open(mode="a", newline="", encoding="utf-8") as log_file:
+        writer = csv.DictWriter(log_file, fieldnames=PDF_DETAIL_COLUMNS)
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            "run_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "source_file": source_file,
+            "location": record["location"],
+            "agreement_id": record["agreement_id"],
+            "account_number": record["account_number"],
+            "customer_name": record["customer_name"].replace("\n", " | "),
+            "pdf_path":str(pdf_path),
             "status": status,
         })

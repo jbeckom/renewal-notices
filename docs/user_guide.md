@@ -4,6 +4,10 @@ The tool currently:
 - Validates required columns
 - Normalizes and cleans source data
 - Converts each row into a structured renewal record
+- Generates renewal notice PDFs for each valid renewal record
+- Saves PDFs using a standardized naming convention
+- Organizes PDFs by renewal cycle and location
+- Creates run-level and record-level log files
 
 The tool does not yet:
 - Send emails
@@ -149,3 +153,20 @@ The log includes:
 - status
 
 This provides a basic audit trail for each processing run.
+
+
+## PDF Detail Log
+Each generated PDF is recorded in:
+    'logs/pdf_detail.csv;
+
+The log includes:
+- run timestamp
+- source CSV file
+- location
+- agreement ID
+- account number
+- customer name
+- PDF path
+- status
+
+This provides a record-level audit trail for each generated renewal notice.
