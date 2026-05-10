@@ -1,4 +1,5 @@
 import pandas as pd
+from api_client import enrich_record_with_mailing_address
 from logger import write_run_summary, write_pdf_detail
 from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO, LOGS_DIR, LOGO_PATH
 from pdf_generator import (
@@ -50,9 +51,24 @@ def main():
 
         records = build_renewal_records(df, location)
 
+        enriched_records = []
+
+        billing_override_count = 0
+
+        for record in records:
+            enriched_record = enrich_record_with_mailing_address(record)
+
+            if enriched_record["mailing_address"]:
+                billing_override_count += 1
+
+            enriched_records.append(enriched_record)
+
+        records = enriched_records
+
         print("✔ File is ready for next processing step")
         print(f"Rows in file: {len(df)}")
         print(f"Records created: {len(records)}")
+        print(f"Billing address overrides found: {billing_override_count}")
 
         pdf_count = 0
 
