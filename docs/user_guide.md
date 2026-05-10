@@ -174,3 +174,13 @@ This provides a record-level audit trail for each generated renewal notice.
 
 ## Renewal Notice Message
 Each PDF includes a short customer-facing message explaining that the customer's maintenance agreement is coming up for renewal.
+
+## Remittance Section
+Each renewal notice includes a detachable remittance section for customers mailing payment by check.
+
+The remittance section includes:
+- account number
+- agreement number
+- customer name
+- payment due date
+- amount due

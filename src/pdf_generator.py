@@ -257,6 +257,104 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     )
 
     # --------------------------------------------------
+    # REMITTANCE SECTION
+    # --------------------------------------------------
+
+    REMITTANCE_Y = 170
+    margin_x = 72
+
+    separator_text = (
+        "Please detach and return this section with your payment."
+    )
+
+    c.setFont("Helvetica-Oblique", 9)
+
+    text_width = c.stringWidth(
+        separator_text,
+        "Helvetica-Oblique",
+        9
+    )
+
+    text_x = (width - text_width) / 2
+
+    line_y = REMITTANCE_Y + 3
+    gap = 8
+
+    # Left dashed line
+    c.setDash(3, 3)
+
+    c.line(
+        margin_x,
+        line_y,
+        text_x - gap,
+        line_y
+    )
+
+    # Right dashed line
+    c.line(
+        text_x + text_width + gap,
+        line_y,
+        width - margin_x,
+        line_y
+    )
+
+    # Reset dash pattern
+    c.setDash()
+
+    # Separator text
+    c.drawString(
+        text_x,
+        REMITTANCE_Y,
+        separator_text
+    )
+
+    remit_y = REMITTANCE_Y - 35
+
+    c.setFont("Helvetica-Bold", 10)
+
+    c.drawString(
+        72,
+        remit_y,
+        f"Account #: {record['account_number']}"
+    )
+
+    c.drawRightString(
+        width - 72,
+        remit_y,
+        f"Agreement #: {record['agreement_id']}"
+    )
+
+    c.setFont("Helvetica", 10)
+
+    c.drawString(
+        72,
+        remit_y - 20,
+        f"Customer: {record['customer_name'].split(chr(10))[0]}"
+    )
+
+    c.drawString(
+        72,
+        remit_y - 45,
+        f"Amount Due: {record['total_price']}"
+    )
+
+    c.setFont("Helvetica-Bold", 10)
+
+    c.drawString(
+        72,
+        remit_y - 80,
+        "Make checks payable to:"
+    )
+
+    c.setFont("Helvetica", 10)
+
+    c.drawString(
+        72,
+        remit_y - 100,
+        company_info["name"]
+    )
+
+    # --------------------------------------------------
     # SAVE PDF
     # --------------------------------------------------
 
