@@ -8,6 +8,7 @@ The tool currently:
 - Saves PDFs using a standardized naming convention
 - Organizes PDFs by renewal cycle and location
 - Creates run-level and record-level log files
+- Supports branded PDF generation using company logo assets
 
 The tool does not yet:
 - Send emails
@@ -56,6 +57,18 @@ The filename should include the location code:
 Example filenames:
 - 'sca-renewals-an-2606.csv'
 - 'sca-renewals-mu-2606.csv'
+
+
+## Environment Variables
+Sensitive configuration values are stored in:
+- '.env'
+
+The repository also includes:
+- '.env.example'
+
+Environment variables currently support:
+- FieldPulse API base URL
+- FieldPulse API keys
 
 
 ## File Validation
@@ -129,31 +142,43 @@ This prevents placeholder data from appearing on renewal notices.
 
 
 ## Structured PDF Generation
-The PDF generation module now supports structured renewal notice rendering.
+The PDF generation module now supports branded, structured renewal notice rendering.
 
 The current layout includes:
-- Renewal notice header
-- Account information
-- Customer information
-- Service address
-- Agreement details
-- Payment details
-
-Branding, logos, and final styling are still in development.
+- company logo and branding
+- company contact information
+- renewal notice title
+- account information
+- customer and service address section
+- customer-facing renewal message
+- agreement details
+- payment details
+- detachable remittance section
 
 
 ## PDF Naming Convention
 Renewal notice PDFs use the following naming format:
-    '{yymm}-renewal-{agreement_id}-{customer_name}.pdf'
+    '{yymm}-renewal-{location}-{agreement_id}-{customer_name}.pdf'
 
 Example:
-    '2606-renewal-13661-grace-recovery-and-wellness.pdf'
+    '2606-renewal-an-13661-grace-recovery-and-wellness.pdf'
 
 Filename details:
 - 'yymm' is based on the agreement expiration date
 - 'agreement_id' is the renewal agreement number
 - 'customer_name' is normalized into filesystem-safe text
 - Special characters and spaces are converted to hyphens
+
+
+## Output Directory Structure
+Renewal notice PDFs are organized by renewal cycle and location.
+
+Structure:
+- 'output/{yymm}/{location}'
+
+Examples:
+- 'output/2606/an/'
+- 'output/2606/mu'
 
 
 ## PDF Batch Generation
@@ -180,7 +205,7 @@ This provides a basic audit trail for each processing run.
 
 ## PDF Detail Log
 Each generated PDF is recorded in:
-    'logs/pdf_detail.csv;
+    'logs/pdf_detail.csv'
 
 The log includes:
 - run timestamp
@@ -207,3 +232,4 @@ The remittance section includes:
 - customer name
 - payment due date
 - amount due
+
