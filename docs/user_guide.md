@@ -15,11 +15,34 @@ The tool does not yet:
 
 
 ## Planned Enhancements
+Future improvements planned for the renewal notice automation system include:
 
-- PDF Generation using company letterhead
-- Email delivery of renewal notices
-- API integration to retrieve billing addresses
-- Logging and exception reporting
+### Exception Handling
+- Gracefully handle malformed CSV files
+- Handle missing required data fields
+- Capture PDF generation failures
+- Continue processing remaining records when possible
+
+### Exception Logging
+- Log record-level processing failures
+- Log PDF generation errors
+- Track skipped records and reasons
+- Create exception reports for manual follow-up
+
+### API Enrichment
+- Retrieve billing address from the FieldPulse platform API
+- Potentially enrich customer/account data before PDF generation
+
+### Email Automation
+- Generate standardized renewal email bodies
+- Attach renewal PDFs automatically
+- Support review/approval workflows before send
+- Track send statuses and failures
+
+### Cloud Migration
+- Migrate processing workflow to AWS
+- Integrate with SharePoint document storage
+- Automate scheduled renewal processing
 
 
 ## Input Files
