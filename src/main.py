@@ -1,8 +1,7 @@
 import pandas as pd
 from logger import write_run_summary, write_pdf_detail
-from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO, LOGS_DIR
+from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO, LOGS_DIR, LOGO_PATH
 from pdf_generator import (
-    generate_test_pdf,
     generate_renewal_notice_pdf,
 )
 from utils import (
@@ -71,7 +70,8 @@ def main():
             generate_renewal_notice_pdf(
                 record,
                 renewal_pdf_path,
-                COMPANY_INFO[location]
+                COMPANY_INFO[location],
+                LOGO_PATH
             )
 
             write_pdf_detail(

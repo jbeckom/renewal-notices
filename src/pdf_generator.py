@@ -52,32 +52,7 @@ def draw_wrapped_text(c, x, y, text, max_width, line_height=14):
     return y
 
 
-def generate_test_pdf(record: dict, output_path: Path) -> None:
-    """
-    Generate a simple test PDF from one renewal record.
-
-    This is intentionally basic.  The purpose is to verify that:
-    - ReportLab works
-    - A PDF file can be created
-    - Record values can be written to the PDF
-    """
-
-    c = canvas.Canvas(str(output_path), pagesize=LETTER)
-
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(72, 720, "Renewal Notice - Test PDF")
-
-    c.setFont("Helvetica", 10)
-
-    y = 680
-    for key, value in record.items():
-        c.drawString(72, y, f"{key}: {value}")
-        y -= 18
-
-    c.save()
-
-
-def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: dict) -> None:
+def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: dict, logo_path: Path) -> None:
     """
     Generate a structured renewal notice PDF.
 
@@ -89,20 +64,46 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     width, height = LETTER
 
-    TOP_OFFSET = -40
+    # --------------------------------------------------
+    # LAYOUT CONSTANTS
+    # --------------------------------------------------
+
+    LOGO_Y = 690
+    BODY_OFFSET = 0
 
     # --------------------------------------------------
     # COMPANY HEADER
     # --------------------------------------------------
 
-    c.setFont("Helvetica-Bold", 12)
-    c.drawCentredString(width / 2, 760, company_info["name"])
+    if logo_path.exists():
+        c.drawImage(
+            str(logo_path),
+            x=106,
+            y=LOGO_Y,
+            width=400,
+            height=95,
+            preserveAspectRatio=True,
+            mask="auto"
+        )
+    else:
+        c.setFont("Helvetica-Bold", 12)
+        c.drawCentredString(
+            width / 2,
+            760,
+            company_info["name"]
+        )
 
     c.setFont("Helvetica", 9)
-    c.drawCentredString(width / 2, 746, company_info["address"])
+
     c.drawCentredString(
         width / 2,
-        732,
+        675,
+        company_info["address"]
+    )
+
+    c.drawCentredString(
+        width / 2,
+        663,
         f"{company_info['phone']} | {company_info['website']}"
     )
 
@@ -110,24 +111,29 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # NOTICE TITLE
     # --------------------------------------------------
 
-    c.setFont("Helvetica-Bold", 16)
-    c.drawCentredString(width / 2, 700, "Renewal Notice")
+    c.setFont("Helvetica-Bold", 24)
+
+    c.drawCentredString(
+        width / 2,
+        625,
+        "RENEWAL NOTICE"
+    )
 
     # --------------------------------------------------
     # ACCOUNT INFO
     # --------------------------------------------------
 
-    c.setFont("Helvetica", 10)
+    c.setFont("Helvetica", 12)
 
     c.drawString(
         72,
-        670 + TOP_OFFSET,
+        585,
         f"Account #: {record['account_number']}"
     )
 
     c.drawRightString(
         width - 72,
-        670 + TOP_OFFSET,
+        585,
         f"Date: {record['run_date']}"
     )
 
@@ -136,7 +142,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # --------------------------------------------------
 
     box_x = 72
-    box_y = 540 + TOP_OFFSET
+    box_y = 455
     box_width = 468
     box_height = 110
     divider_x = box_x + (box_width / 2)
@@ -189,7 +195,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
         "any questions."
     )
 
-    draw_wrapped_text(
+    after_message_y = draw_wrapped_text(
         c,
         72,
         message_y,
@@ -201,11 +207,12 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # AGREEMENT SECTION
     # --------------------------------------------------
 
+    agreement_y = after_message_y - 20
     c.setFont("Helvetica-Bold", 11)
 
     c.drawString(
         72,
-        430 + TOP_OFFSET,
+        agreement_y,
         f"Renewal for Agreement #: {record['agreement_id']}"
     )
 
@@ -213,19 +220,19 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawString(
         72,
-        390 + TOP_OFFSET,
+        agreement_y - 40,
         f"Agreement Type: {record['agreement_type']}"
     )
 
     c.drawString(
         72,
-        365 + TOP_OFFSET,
+        agreement_y - 65,
         f"Coverage Through: {record['coverage_through']}"
     )
 
     c.drawString(
         72,
-        340 + TOP_OFFSET,
+        agreement_y - 90,
         f"Total Agreement Price: {record['total_price']}"
     )
 
@@ -233,17 +240,19 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # PAYMENT SECTION
     # --------------------------------------------------
 
+    payment_y = agreement_y - 140
+
     c.setFont("Helvetica-Bold", 11)
 
     c.drawString(
         72,
-        290 + TOP_OFFSET,
+        payment_y,
         f"Payment Due Date: {record['payment_due_date']}"
     )
 
     c.drawString(
         72,
-        265 + TOP_OFFSET,
+        payment_y - 25,
         f"Amount Due: {record['total_price']}"
     )
 
