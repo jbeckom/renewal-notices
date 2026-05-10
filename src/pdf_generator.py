@@ -25,6 +25,33 @@ def draw_multiline_text(c, x, y, text, line_height=14):
     return y
 
 
+def draw_wrapped_text(c, x, y, text, max_width, line_height=14):
+    """
+    Draw text that wraps within a maximum width.
+
+    This is useful for paragraphs where the text should stay within the page margins instead of running off the page.
+    """
+
+    words = text.split()
+    line = ""
+
+    for word in words:
+        test_line = f"{line} {word}".strip()
+
+        if c.stringWidth(test_line, "Helvetica", 10) <= max_width:
+            line = test_line
+        else:
+            c.drawString(x, y, line)
+            y -= line_height
+            line = word
+
+    if line:
+        c.drawString(x, y, line)
+        y -= line_height
+
+    return y
+
+
 def generate_test_pdf(record: dict, output_path: Path) -> None:
     """
     Generate a simple test PDF from one renewal record.
@@ -149,6 +176,28 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     )
 
     # --------------------------------------------------
+    # NOTICE MESSAGE
+    # --------------------------------------------------
+
+    message_y = box_y - 30
+
+    c.setFont("Helvetica", 10)
+
+    message = (
+        "Our records indicate that your current Safety & Comfort Agreement is coming up "
+        "for renewal. Please review the renewal details below and contact us with "
+        "any questions."
+    )
+
+    draw_wrapped_text(
+        c,
+        72,
+        message_y,
+        message,
+        max_width=468,
+    )
+
+    # --------------------------------------------------
     # AGREEMENT SECTION
     # --------------------------------------------------
 
@@ -156,7 +205,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawString(
         72,
-        530 + TOP_OFFSET,
+        430 + TOP_OFFSET,
         f"Renewal for Agreement #: {record['agreement_id']}"
     )
 
@@ -164,19 +213,19 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawString(
         72,
-        490 + TOP_OFFSET,
+        390 + TOP_OFFSET,
         f"Agreement Type: {record['agreement_type']}"
     )
 
     c.drawString(
         72,
-        465 + TOP_OFFSET,
+        365 + TOP_OFFSET,
         f"Coverage Through: {record['coverage_through']}"
     )
 
     c.drawString(
         72,
-        440 + TOP_OFFSET,
+        340 + TOP_OFFSET,
         f"Total Agreement Price: {record['total_price']}"
     )
 
@@ -188,13 +237,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawString(
         72,
-        390 + TOP_OFFSET,
+        290 + TOP_OFFSET,
         f"Payment Due Date: {record['payment_due_date']}"
     )
 
     c.drawString(
         72,
-        365 + TOP_OFFSET,
+        265 + TOP_OFFSET,
         f"Amount Due: {record['total_price']}"
     )
 
