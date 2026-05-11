@@ -242,3 +242,19 @@ If FieldPulse indicates that the customer has a different billing address, the r
 If no different billing address exists, the renewal notice uses the service address from the CSV export.
 
 The service address is always shown separately on the renewal notice.
+
+
+## Renewal Notice Layout Updates
+The renewal notice PDF now includes:
+- Company logo branding
+- Mailing address override support from FieldPulse
+- Separate mailing and service address sections
+- Condensed agreement/payment summary layout
+- Remittance/payment return section
+- "Make checks payable to" support using company legal entity name
+
+The PDF layout is optimized for standard tri-fold mailing and window envelopes.
+
+
+## PDF Layout Testing
+'pdf_generator.py' includes a standalone testing block that allows rapid PDF layout iteration using a hardcoded sample record without running the full renewal processing workflow.

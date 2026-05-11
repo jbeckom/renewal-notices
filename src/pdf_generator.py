@@ -97,13 +97,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawCentredString(
         width / 2,
-        675,
+        680,
         company_info["address"]
     )
 
     c.drawCentredString(
         width / 2,
-        663,
+        668,
         f"{company_info['phone']} | {company_info['website']}"
     )
 
@@ -115,7 +115,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawCentredString(
         width / 2,
-        625,
+        630,
         "RENEWAL NOTICE"
     )
 
@@ -127,13 +127,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawString(
         72,
-        585,
+        605,
         f"Account #: {record['account_number']}"
     )
 
     c.drawRightString(
         width - 72,
-        585,
+        605,
         f"Date: {record['run_date']}"
     )
 
@@ -142,9 +142,9 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # --------------------------------------------------
 
     box_x = 72
-    box_y = 455
+    box_y = 515
     box_width = 468
-    box_height = 110
+    box_height = 75
     divider_x = box_x + (box_width / 2)
 
     left_x = box_x + 10
@@ -204,55 +204,53 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     )
 
     # --------------------------------------------------
-    # AGREEMENT SECTION
+    # AGREEMENT / PAYMENT SECTION
     # --------------------------------------------------
 
     agreement_y = after_message_y - 20
+
+    left_x = 72
+    right_x = 360
+
     c.setFont("Helvetica-Bold", 11)
 
     c.drawString(
-        72,
+        left_x,
         agreement_y,
         f"Renewal for Agreement #: {record['agreement_id']}"
+    )
+
+    c.drawString(
+        right_x,
+        agreement_y,
+        f"Payment Due Date: {record['payment_due_date']}"
     )
 
     c.setFont("Helvetica", 10)
 
     c.drawString(
-        72,
-        agreement_y - 40,
+        left_x,
+        agreement_y - 22,
         f"Agreement Type: {record['agreement_type']}"
     )
 
     c.drawString(
-        72,
-        agreement_y - 65,
+        left_x,
+        agreement_y - 42,
         f"Coverage Through: {record['coverage_through']}"
     )
 
     c.drawString(
-        72,
-        agreement_y - 90,
+        left_x,
+        agreement_y - 62,
         f"Total Agreement Price: {record['total_price']}"
     )
-
-    # --------------------------------------------------
-    # PAYMENT SECTION
-    # --------------------------------------------------
-
-    payment_y = agreement_y - 140
 
     c.setFont("Helvetica-Bold", 11)
 
     c.drawString(
-        72,
-        payment_y,
-        f"Payment Due Date: {record['payment_due_date']}"
-    )
-
-    c.drawString(
-        72,
-        payment_y - 25,
+        right_x,
+        agreement_y - 22,
         f"Amount Due: {record['total_price']}"
     )
 
@@ -351,7 +349,8 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     c.drawString(
         72,
         remit_y - 100,
-        company_info["name"]
+        # company_info["name"]
+        "Summers of Anderson, Inc"
     )
 
     # --------------------------------------------------
@@ -359,3 +358,55 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # --------------------------------------------------
 
     c.save()
+
+
+
+### TESTING ONLY ###
+if __name__ == "__main__":
+    from datetime import date
+
+    COMPANY_INFO = {
+        "AN": {
+            "name": "Summers Plumbing Heating & Cooling",
+            "address": "3423 Columbus Ave, Anderson, IN 46013",
+            "phone": "765.644.4328",
+            "website": "www.summersphc.com"
+        },
+        "MU": {
+            "name": "Summers Plumbing Heating & Cooling",
+            "address": "3700 S Hoyt Ave, Muncie, IN 47302",
+            "phone": "765.399.4328",
+            "website": "www.summersphc.com"
+        }
+    }
+
+    test_record = {
+        "agreement_id": "10980",
+        "customer_name": "Michael Mendoza",
+        "mailing_address": (
+            "123 Billing Street\n"
+            "Indianapolis, Indiana 46204"
+        ),
+        "service_address": (
+            "2214 Meridian Street\n"
+            "Anderson, Indiana 46016"
+        ),
+        "run_date": date.today().strftime("%-m/%-d/%Y"),
+        "coverage_through": "6/3/2026",
+        "agreement_type": "MAINTW/JOB",
+        "expiration_date": "6/2/2027",
+        "agreement_price": "$149.00",
+        "total_price": "$149.00",
+        "payment_due_date": "6/3/2026",
+        "account_number": "14173313",
+        "renewal_date": "5/7/2026",
+        "location": "an",
+    }
+
+
+    generate_renewal_notice_pdf(
+        record = test_record,
+        logo_path=Path("templates/SPHC-Logo-BlkText--.png"),
+        output_path=Path("output/test/demo.pdf"),
+        company_info=COMPANY_INFO["AN"],
+    )
