@@ -9,10 +9,10 @@ The tool currently:
 - Organizes PDFs by renewal cycle and location
 - Creates run-level and record-level log files
 - Supports branded PDF generation using company logo assets
+- Retrieves billing address overrides from the FieldPulse API when applicable
 
 The tool does not yet:
 - Send emails
-- Retrieve billing addresses from the API
 
 
 ## Planned Enhancements
@@ -233,3 +233,12 @@ The remittance section includes:
 - payment due date
 - amount due
 
+
+## Billing Address API Enrichment
+During processing, each renewal record is checked against the FieldPulse API.
+
+If FieldPulse indicates that the customer has a different billing address, the renewal notice uses the billing address in the customer/mailing address section.
+
+If no different billing address exists, the renewal notice uses the service address from the CSV export.
+
+The service address is always shown separately on the renewal notice.

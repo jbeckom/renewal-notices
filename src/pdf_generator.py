@@ -168,7 +168,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
         c,
         left_x,
         left_y,
-        record['service_address']
+        record.get("mailing_address") or record["service_address"]
     )
 
     # Right side: service address

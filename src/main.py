@@ -60,6 +60,12 @@ def main():
 
             if enriched_record["mailing_address"]:
                 billing_override_count += 1
+                ### TESTING/VALIDATION ONLY ###
+                print(
+                    f"Billing override applied:"
+                    f"{record['agreement_id']} | "
+                    f"{record['customer_name']}"
+                )
 
             enriched_records.append(enriched_record)
 
