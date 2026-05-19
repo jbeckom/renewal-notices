@@ -258,3 +258,9 @@ The PDF layout is optimized for standard tri-fold mailing and window envelopes.
 
 ## PDF Layout Testing
 'pdf_generator.py' includes a standalone testing block that allows rapid PDF layout iteration using a hardcoded sample record without running the full renewal processing workflow.
+
+
+## Window Envelope Alignment
+The renewal notice layout is adjusted for standard tri-fold mailing and window envelope visibility.
+
+The customer/mailing address section is positioned so the mailing address appears in the envelope window when folded.

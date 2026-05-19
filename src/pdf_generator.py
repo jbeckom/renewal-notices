@@ -68,7 +68,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # LAYOUT CONSTANTS
     # --------------------------------------------------
 
-    LOGO_Y = 690
+    LOGO_Y = 702
     BODY_OFFSET = 0
 
     # --------------------------------------------------
@@ -81,7 +81,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
             x=106,
             y=LOGO_Y,
             width=400,
-            height=95,
+            height=78,
             preserveAspectRatio=True,
             mask="auto"
         )
@@ -97,13 +97,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawCentredString(
         width / 2,
-        680,
+        692,
         company_info["address"]
     )
 
     c.drawCentredString(
         width / 2,
-        668,
+        680,
         f"{company_info['phone']} | {company_info['website']}"
     )
 
@@ -115,7 +115,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawCentredString(
         width / 2,
-        630,
+        642,
         "RENEWAL NOTICE"
     )
 
@@ -127,13 +127,13 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     c.drawString(
         72,
-        605,
+        617,
         f"Account #: {record['account_number']}"
     )
 
     c.drawRightString(
         width - 72,
-        605,
+        617,
         f"Date: {record['run_date']}"
     )
 
@@ -142,7 +142,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # --------------------------------------------------
 
     box_x = 72
-    box_y = 515
+    box_y = 534
     box_width = 468
     box_height = 75
     divider_x = box_x + (box_width / 2)
