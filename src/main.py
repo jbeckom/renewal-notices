@@ -15,7 +15,7 @@ from utils import (
 )
 
 
-exception_log = cfg.EXCEPTION_LOG
+# exception_log = cfg.EXCEPTION_LOG
 
 # --------------------------------------------------
 # MAIN PROCESS
@@ -63,11 +63,6 @@ def main():
 
         for record in records:
             try:
-                ### TEMP TESTING ONLY - REMOVE ###
-                if record['account_number'] == "14174319":
-                    record['account_number'] = "99999999"
-                ### TEMP TESTING ONLY - REMOVE ###
-
                 enriched_record = enrich_record_with_mailing_address(record)
 
                 if enriched_record['mailing_address']:
@@ -83,7 +78,7 @@ def main():
                 api_error_count += 1
 
                 write_exception_log(
-                    log_path=exception_log,
+                    log_path=cfg.EXCEPTION_LOG,
                     source_file=file_path.name,
                     location=location,
                     stage="API_ENRICHMENT",
@@ -106,10 +101,6 @@ def main():
         records = enriched_records
 
         print("✔ File is ready for next processing step")
-        print(f"Rows in file: {len(df)}")
-        print(f"Records created: {len(records)}")
-        print(f"Billing address overrides found: {billing_override_count}")
-        print(f"API enrichment failures: {api_error_count}")
 
         pdf_count = 0
         pdf_error_count = 0
@@ -134,7 +125,7 @@ def main():
                 pdf_error_count += 1
 
                 write_exception_log(
-                    log_path=exception_log,
+                    log_path=cfg.EXCEPTION_LOG,
                     source_file=file_path.name,
                     location=location,
                     stage="RECORD_VALIDATION",
@@ -160,12 +151,6 @@ def main():
                 continue
 
             try:
-                ### TEMP TESTING ONLY - REMOVE ###
-                if record['account_number'] == "14171809":
-                    from pathlib import Path
-                    renewal_pdf_path = Path('/invalid-folder/test.pdf')
-                ### TEMP TESTING ONLY - REMOVE ###                
-
                 generate_renewal_notice_pdf(
                     record,
                     renewal_pdf_path,
@@ -187,7 +172,7 @@ def main():
                 pdf_error_count += 1
 
                 write_exception_log(
-                    log_path=exception_log,
+                    log_path=cfg.EXCEPTION_LOG,
                     source_file=file_path.name,
                     location=location,
                     stage="PDF_GENERATION",
@@ -211,8 +196,21 @@ def main():
 
                 continue
         
+        status = "SUCCESS"
+        if api_error_count > 0 or pdf_error_count > 0:
+            status = "COMPLETED_WITH_ERRORS"
+
+        print()
+        print("-" * 50)
+        print(f"File complete: {file_path.name}")
+        print(f"Rows in file: {len(df)}")
+        print(f"Records created: {len(records)}")
+        print(f"Billing overrides found: {billing_override_count}")
+        print(f"API enrichment failures: {api_error_count}")
         print(f"Renewal PDFs created: {pdf_count}")
         print(f"PDF generation failures: {pdf_error_count}")
+        print(f"Status: {status}")
+        print("-" * 50)
 
         write_run_summary(
             log_path=run_summary_log,
@@ -224,7 +222,7 @@ def main():
             billing_overrides_found=billing_override_count,
             api_enrichment_failures=api_error_count,
             pdf_generation_failures=pdf_error_count,
-            status="SUCCESS",
+            status=status,
         )
 
         print()
