@@ -55,26 +55,43 @@ def main():
 
         billing_override_count = 0
 
-        for record in records:
-            enriched_record = enrich_record_with_mailing_address(record)
+        api_error_count = 0
 
-            if enriched_record["mailing_address"]:
-                billing_override_count += 1
-                ### TESTING/VALIDATION ONLY ###
+        for record in records:
+            try:
+                enriched_record = enrich_record_with_mailing_address(record)
+
+                if enriched_record['mailing_address']:
+                    billing_override_count += 1
+
+                    print(
+                        f"Billing override applied: "
+                        f"{record['agreement_id']} | "
+                        f"{record['customer_name']}"
+                    )
+
+            except Exception as e:
+                api_error_count += 1
+
                 print(
-                    f"Billing override applied:"
-                    f"{record['agreement_id']} | "
-                    f"{record['customer_name']}"
+                    f"⚠️ API enrichment failed for "
+                    f"Agreement {record['agreement_id']}"
+                    f"Account {record['account_number']}: {e}"
                 )
 
-            enriched_records.append(enriched_record)
+                # Keep processing using the original CSV-derived service address.
+                record['mailing_address'] = None
+                enriched_record = record
 
-        records = enriched_records
+            enriched_records.append(enriched_record)
+        
+        record = enriched_records
 
         print("✔ File is ready for next processing step")
         print(f"Rows in file: {len(df)}")
         print(f"Records created: {len(records)}")
         print(f"Billing address overrides found: {billing_override_count}")
+        print(f"API enrichment failures: {api_error_count}")
 
         pdf_count = 0
 
