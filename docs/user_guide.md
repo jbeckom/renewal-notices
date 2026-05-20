@@ -221,7 +221,11 @@ The log includes:
 - PDF path
 - status
 
-This provides a record-level audit trail for each generated renewal notice.
+Possible status values include:
+- CREATED
+- FAILED
+
+This provides a record-level audit trail for both successful and failed PDF generation attempts.
 
 
 ## Renewal Notice Message

@@ -160,6 +160,14 @@ def main():
                     error_message=str(e),
                 )
 
+                write_pdf_detail(
+                    log_path=pdf_detail_log,
+                    source_file=file_path.name,
+                    record=record,
+                    pdf_path=renewal_pdf_path,
+                    status="FAILED"
+                )
+
                 print (
                     f"⚠️ PDF generation failed for "
                     f"Agreement {record['agreement_id']} | "
