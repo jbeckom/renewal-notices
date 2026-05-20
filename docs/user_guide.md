@@ -31,8 +31,9 @@ Future improvements planned for the renewal notice automation system include:
 - Create exception reports for manual follow-up
 
 ### API Enrichment
-- Retrieve billing address from the FieldPulse platform API
-- Potentially enrich customer/account data before PDF generation
+- Retrieve additional customer/account metadata
+- Support deeper account validation
+- Potentially enrich agreement-level data
 
 ### Email Automation
 - Generate standardized renewal email bodies
@@ -223,16 +224,6 @@ This provides a record-level audit trail for each generated renewal notice.
 ## Renewal Notice Message
 Each PDF includes a short customer-facing message explaining that the customer's maintenance agreement is coming up for renewal.
 
-## Remittance Section
-Each renewal notice includes a detachable remittance section for customers mailing payment by check.
-
-The remittance section includes:
-- account number
-- agreement number
-- customer name
-- payment due date
-- amount due
-
 
 ## Billing Address API Enrichment
 During processing, each renewal record is checked against the FieldPulse API.
@@ -255,12 +246,37 @@ The renewal notice PDF now includes:
 
 The PDF layout is optimized for standard tri-fold mailing and window envelopes.
 
+## Remittance Section
+The renewal notice includes a detachable remittance/payment section designed for mailed payments.
 
-## PDF Layout Testing
-'pdf_generator.py' includes a standalone testing block that allows rapid PDF layout iteration using a hardcoded sample record without running the full renewal processing workflow.
+Current remittance features include:
+- Account number
+- Agreement number
+- Customer name
+- Service address
+- Amount due
+- Payment method selection
+- Check payment information
+- Driver's license verification fields
+- Credit card entry fields
+- Payable-to information
 
 
 ## Window Envelope Alignment
 The renewal notice layout is adjusted for standard tri-fold mailing and window envelope visibility.
 
 The customer/mailing address section is positioned so the mailing address appears in the envelope window when folded.
+
+
+## PDF Layout Testing
+'pdf_generator.py' includes a standalone testing block using a hardcoded sample record.
+
+This allows rapid iteration of:
+- PDF layout
+- Window envelope alignment
+- Logo sizing
+- Remittance formatting
+- Payment field spacing
+
+without processing full renewal batches.
+

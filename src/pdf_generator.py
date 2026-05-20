@@ -306,52 +306,78 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
         separator_text
     )
 
-    remit_y = REMITTANCE_Y - 35
+    remit_y = REMITTANCE_Y - 24
+    
+    left_x = 72
+    check_x = 220
+    card_x = 400
 
-    c.setFont("Helvetica-Bold", 10)
+    # Helper for bold label + normal value
+    def draw_label_value(label, value, x, y, label_font_size=9, value_font_size=9):
+        c.setFont("Helvetica-Bold", label_font_size)
+        c.drawString(x, y, label)
+        label_width = c.stringWidth(label, "Helvetica-Bold", label_font_size)
 
-    c.drawString(
-        72,
-        remit_y,
-        f"Account #: {record['account_number']}"
+        c.setFont("Helvetica", value_font_size)
+        c.drawString(x + label_width + 3, y, value)
+
+    ## --------------------------------------------------
+    ## LEFT SIDE - CUSTOMER / SERVICE INFO
+    ## --------------------------------------------------
+
+    draw_label_value("Account #:", record['account_number'], left_x, remit_y)
+    draw_label_value("Agreement #:", record['agreement_id'], left_x, remit_y - 20)
+    draw_label_value(
+        "Customer:",
+        record['customer_name'].split(chr(10))[0],
+        left_x,
+        remit_y - 40
     )
 
-    c.drawRightString(
-        width - 72,
-        remit_y,
-        f"Agreement #: {record['agreement_id']}"
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(left_x, remit_y - 60, "Service Address:")
+
+    c.setFont("Helvetica", 9)
+    draw_multiline_text(
+        c,
+        left_x,
+        remit_y - 70,
+        record['service_address'],
+        line_height=11
     )
 
-    c.setFont("Helvetica", 10)
+    ## --------------------------------------------------
+    ## CENTER - PAYMENT INFO
+    ## --------------------------------------------------
+    
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(check_x, remit_y, "Payment Method:")
 
-    c.drawString(
-        72,
-        remit_y - 20,
-        f"Customer: {record['customer_name'].split(chr(10))[0]}"
-    )
+    c.setFont("Helvetica", 9)
+    c.drawString(check_x, remit_y - 18, "[  ] Check")
 
-    c.drawString(
-        72,
-        remit_y - 45,
-        f"Amount Due: {record['total_price']}"
-    )
+    c.setFont("Helvetica", 8)
+    c.drawString(check_x, remit_y - 32, "Payable to: Summers of Anderson, Inc.")
 
-    c.setFont("Helvetica-Bold", 10)
+    c.setFont("Helvetica", 8)
+    c.drawString(check_x, remit_y - 55, "DL State: ______________")
+    c.drawString(check_x, remit_y - 75, "DL #: _____________________________")
+    c.drawString(check_x, remit_y - 95, "DL Exp: __________________")
+    c.drawString(check_x, remit_y - 115, "DOB: __________________")
 
-    c.drawString(
-        72,
-        remit_y - 80,
-        "Make checks payable to:"
-    )
+    ## --------------------------------------------------
+    ## RIGHT SIDE - CREDIT CARD INFO
+    ## --------------------------------------------------
 
-    c.setFont("Helvetica", 10)
+    c.setFont("Helvetica", 9)
+    c.drawString(card_x, remit_y - 18, "[  ] Credit Card")
 
-    c.drawString(
-        72,
-        remit_y - 100,
-        # company_info["name"]
-        "Summers of Anderson, Inc"
-    )
+    c.setFont("Helvetica", 8)
+    c.drawString(card_x, remit_y - 55, "Card #: __________________________")
+    c.drawString(card_x, remit_y - 75, "Exp Date: __________________")
+    c.drawString(card_x, remit_y - 95, "CVC: ______________")
+    c.drawString(card_x, remit_y - 115, "Billing ZIP Code: ______________")
+
 
     # --------------------------------------------------
     # SAVE PDF
