@@ -11,6 +11,7 @@ from utils import (
     build_renewal_records,
     build_pdf_filename,
     build_output_directory,
+    validate_record,
 )
 
 
@@ -62,8 +63,10 @@ def main():
 
         for record in records:
             try:
-                if record['account_number'] == "14174319":
-                    record['account_number'] = "99999999"
+                # ### TEMP TESTING ONLY - REMOVE ###
+                # if record['account_number'] == "14174319":
+                #     record['account_number'] = "99999999"
+                # ### TEMP TESTING ONLY - REMOVE ###
 
                 enriched_record = enrich_record_with_mailing_address(record)
 
@@ -90,7 +93,7 @@ def main():
 
                 print(
                     f"⚠️ API enrichment failed for "
-                    f"Agreement {record['agreement_id']}"
+                    f"Agreement {record['agreement_id']} | "
                     f"Account {record['account_number']}: {e}"
                 )
 
@@ -100,7 +103,7 @@ def main():
 
             enriched_records.append(enriched_record)
         
-        record = enriched_records
+        records = enriched_records
 
         print("✔ File is ready for next processing step")
         print(f"Rows in file: {len(df)}")
@@ -109,6 +112,7 @@ def main():
         print(f"API enrichment failures: {api_error_count}")
 
         pdf_count = 0
+        pdf_error_count = 0
 
         for record in records:
             output_dir = build_output_directory(
@@ -121,15 +125,46 @@ def main():
                 build_pdf_filename(record)
             )
 
-            pdf_error_count = 0
+            # --------------------------------------------------
+            # MAIN PROCESS
+            # --------------------------------------------------
+            record_errors = validate_record(record)
+
+            if record_errors:
+                pdf_error_count += 1
+
+                write_exception_log(
+                    log_path=exception_log,
+                    source_file=file_path.name,
+                    location=location,
+                    stage="RECORD_VALIDATION",
+                    record=record,
+                    error_message="; ".join(record_errors)
+                )
+
+                write_pdf_detail(
+                    log_path=pdf_detail_log,
+                    source_file=file_path.name,
+                    record=record,
+                    pdf_path=renewal_pdf_path,
+                    status="FAILED",
+                )
+
+                print(
+                    f"⚠️ Record validation failed for "
+                    f"Agreement {record['agreement_id']} | "
+                    f"Account {record['account_number']}: "
+                    f"{'; '.join(record_errors)}"
+                )
+
+                continue
 
             try:
-                ### TEMP TESTING ONLY - REMOVE ###
-                if record['account_number'] == "14171809":
-                    from pathlib import Path
-                    renewal_pdf_path = Path('/invalid-folder/test.pdf')
-                ### TEMP TESTING ONLY - REMOVE ###
-                
+                # ### TEMP TESTING ONLY - REMOVE ###
+                # if record['account_number'] == "14171809":
+                #     from pathlib import Path
+                #     renewal_pdf_path = Path('/invalid-folder/test.pdf')
+                # ### TEMP TESTING ONLY - REMOVE ###                
 
                 generate_renewal_notice_pdf(
                     record,
@@ -146,7 +181,7 @@ def main():
                     status="CREATED",
                 )
 
-                pdf_error_count += 1
+                pdf_count += 1
 
             except Exception as e:
                 pdf_error_count += 1

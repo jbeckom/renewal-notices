@@ -266,3 +266,29 @@ def build_output_directory(base_output_dir: Path, record: dict) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     return output_dir
+
+
+def validate_record(record: dict) -> list[str]:
+    """
+    Validate one renewal record before PDF generation.
+
+    Returns a list of validation error messages.
+    Empty list means the record is valid.
+    """
+
+    errors = []
+
+    required_fields = [
+        "agreement_id",
+        "account_number",
+        "customer_name",
+        "service_address",
+        "payment_due_date",
+        "total_price",
+    ]
+
+    for field in required_fields:
+        if not record.get(field):
+            errors.append(f"Missing required field: {field}")
+
+    return errors

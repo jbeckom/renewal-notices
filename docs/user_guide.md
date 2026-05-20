@@ -24,11 +24,11 @@ Future improvements planned for the renewal notice automation system include:
 - Capture PDF generation failures
 - Continue processing remaining records when possible
 
-### Exception Logging
-- Log record-level processing failures
-- Log PDF generation errors
-- Track skipped records and reasons
-- Create exception reports for manual follow-up
+### Future Logging Enhancements
+- Add structured application logging
+- Support rotating log files
+- Add log severity levels
+- Generate automated exception summary reports
 
 ### API Enrichment
 - Retrieve additional customer/account metadata
@@ -288,7 +288,7 @@ This allows rapid iteration of:
 without processing full renewal batches.
 
 
-## Exception logging
+## Exception Logging
 Processing exceptions are recorded in:
     'logs/exception_log.csv'
 
@@ -302,10 +302,13 @@ The log includes:
 - customer name
 - error message
 
-Current logged excpetion stages include:
+Current logged exception stages include:
 - 'API_ENRICHMENT'
+- 'RECORD_VALIDATION'
 - 'PDF_GENERATION'
 
 If API enrichment fails for a record, the system continues processing and generates the renewal notice using the CSV-derived service address.
+
+Records missing critical required data are skipped before PDF generation and logged for manual review.
 
 If PDF generation fails for a record, the system logs the failure and continues processing the remaining records.
