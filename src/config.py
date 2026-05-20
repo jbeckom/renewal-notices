@@ -33,3 +33,46 @@ COMPANY_INFO = {
         "website": "www.summersphc.com"
     }
 }
+
+
+# --------------------------------------------------
+# COMPANY / PAYMENT CONFIG
+# --------------------------------------------------
+
+PAYABLE_TO = "Summers of Anderson, Inc."
+
+REMITTANCE_SEPARATOR_TEXT = (
+    "Please detach and return this section with your payment."
+)
+
+
+# --------------------------------------------------
+# LOG FILES
+# --------------------------------------------------
+
+RUN_SUMMARY_LOG = LOGS_DIR / "run_summary.csv"
+PDF_DETAIL_LOG = LOGS_DIR / "pdf_detail.csv"
+EXCEPTION_LOG = LOGS_DIR / "exception_log.csv"
+
+
+# --------------------------------------------------
+# PDF SETTINGS
+# --------------------------------------------------
+
+PDF_FONT = "Helvetica"
+PDF_FONT_BOLD = "Helvetica-Bold"
+PDF_FONT_ITALIC = "Helvetica-Oblique"
+
+
+# --------------------------------------------------
+# RECORD VALIDATION
+# --------------------------------------------------
+
+REQUIRED_RECORD_FIELDS = [
+    "agreement_id",
+    "account_number",
+    "customer_name",
+    "service_address",
+    "payment_due_date",
+    "total_price",
+]

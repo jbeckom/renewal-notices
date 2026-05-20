@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from datetime import date 
 from dateutil.relativedelta import relativedelta
+from config import REQUIRED_RECORD_FIELDS
 
 # --------------------------------------------------
 # CONFIGURATION
@@ -278,16 +279,7 @@ def validate_record(record: dict) -> list[str]:
 
     errors = []
 
-    required_fields = [
-        "agreement_id",
-        "account_number",
-        "customer_name",
-        "service_address",
-        "payment_due_date",
-        "total_price",
-    ]
-
-    for field in required_fields:
+    for field in REQUIRED_RECORD_FIELDS:
         if not record.get(field):
             errors.append(f"Missing required field: {field}")
 

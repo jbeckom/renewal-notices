@@ -1,6 +1,7 @@
 from pathlib import Path
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
+from config import PAYABLE_TO, REMITTANCE_SEPARATOR_TEXT, PDF_FONT, PDF_FONT_BOLD, PDF_FONT_ITALIC
 
 
 def draw_multiline_text(c, x, y, text, line_height=14):
@@ -38,7 +39,7 @@ def draw_wrapped_text(c, x, y, text, max_width, line_height=14):
     for word in words:
         test_line = f"{line} {word}".strip()
 
-        if c.stringWidth(test_line, "Helvetica", 10) <= max_width:
+        if c.stringWidth(test_line, PDF_FONT, 10) <= max_width:
             line = test_line
         else:
             c.drawString(x, y, line)
@@ -86,14 +87,14 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
             mask="auto"
         )
     else:
-        c.setFont("Helvetica-Bold", 12)
+        c.setFont(PDF_FONT_BOLD, 12)
         c.drawCentredString(
             width / 2,
             760,
             company_info["name"]
         )
 
-    c.setFont("Helvetica", 9)
+    c.setFont(PDF_FONT, 9)
 
     c.drawCentredString(
         width / 2,
@@ -111,7 +112,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # NOTICE TITLE
     # --------------------------------------------------
 
-    c.setFont("Helvetica-Bold", 24)
+    c.setFont(PDF_FONT_BOLD, 24)
 
     c.drawCentredString(
         width / 2,
@@ -123,7 +124,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # ACCOUNT INFO
     # --------------------------------------------------
 
-    c.setFont("Helvetica", 12)
+    c.setFont(PDF_FONT, 12)
 
     c.drawString(
         72,
@@ -154,7 +155,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     # Outer box
     c.rect(box_x, box_y, box_width, box_height)
 
-    c.setFont("Helvetica", 10)
+    c.setFont(PDF_FONT, 10)
 
     # Left side: customer/billing placeholder
     left_y = draw_multiline_text(
@@ -187,7 +188,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     message_y = box_y - 30
 
-    c.setFont("Helvetica", 10)
+    c.setFont(PDF_FONT, 10)
 
     message = (
         "Our records indicate that your current Safety & Comfort Agreement is coming up "
@@ -212,7 +213,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     left_x = 72
     right_x = 360
 
-    c.setFont("Helvetica-Bold", 11)
+    c.setFont(PDF_FONT_BOLD, 11)
 
     c.drawString(
         left_x,
@@ -226,7 +227,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
         f"Payment Due Date: {record['payment_due_date']}"
     )
 
-    c.setFont("Helvetica", 10)
+    c.setFont(PDF_FONT, 10)
 
     c.drawString(
         left_x,
@@ -246,7 +247,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
         f"Total Agreement Price: {record['total_price']}"
     )
 
-    c.setFont("Helvetica-Bold", 11)
+    c.setFont(PDF_FONT_BOLD, 11)
 
     c.drawString(
         right_x,
@@ -261,15 +262,11 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     REMITTANCE_Y = 170
     margin_x = 72
 
-    separator_text = (
-        "Please detach and return this section with your payment."
-    )
-
-    c.setFont("Helvetica-Oblique", 9)
+    c.setFont(PDF_FONT_ITALIC, 9)
 
     text_width = c.stringWidth(
-        separator_text,
-        "Helvetica-Oblique",
+        REMITTANCE_SEPARATOR_TEXT,
+        PDF_FONT_ITALIC,
         9
     )
 
@@ -303,7 +300,7 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     c.drawString(
         text_x,
         REMITTANCE_Y,
-        separator_text
+        REMITTANCE_SEPARATOR_TEXT
     )
 
     remit_y = REMITTANCE_Y - 24
@@ -314,11 +311,11 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
 
     # Helper for bold label + normal value
     def draw_label_value(label, value, x, y, label_font_size=9, value_font_size=9):
-        c.setFont("Helvetica-Bold", label_font_size)
+        c.setFont(PDF_FONT_BOLD, label_font_size)
         c.drawString(x, y, label)
-        label_width = c.stringWidth(label, "Helvetica-Bold", label_font_size)
+        label_width = c.stringWidth(label, PDF_FONT_BOLD, label_font_size)
 
-        c.setFont("Helvetica", value_font_size)
+        c.setFont(PDF_FONT, value_font_size)
         c.drawString(x + label_width + 3, y, value)
 
     ## --------------------------------------------------
@@ -334,10 +331,10 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
         remit_y - 40
     )
 
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont(PDF_FONT_BOLD, 9)
     c.drawString(left_x, remit_y - 60, "Service Address:")
 
-    c.setFont("Helvetica", 9)
+    c.setFont(PDF_FONT, 9)
     draw_multiline_text(
         c,
         left_x,
@@ -350,16 +347,16 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     ## CENTER - PAYMENT INFO
     ## --------------------------------------------------
     
-    c.setFont("Helvetica-Bold", 9)
+    c.setFont(PDF_FONT_BOLD, 9)
     c.drawString(check_x, remit_y, "Payment Method:")
 
-    c.setFont("Helvetica", 9)
+    c.setFont(PDF_FONT, 9)
     c.drawString(check_x, remit_y - 18, "[  ] Check")
 
-    c.setFont("Helvetica", 8)
-    c.drawString(check_x, remit_y - 32, "Payable to: Summers of Anderson, Inc.")
+    c.setFont(PDF_FONT, 8)
+    c.drawString(check_x, remit_y - 32, f"Payable to: {PAYABLE_TO}")
 
-    c.setFont("Helvetica", 8)
+    c.setFont(PDF_FONT, 8)
     c.drawString(check_x, remit_y - 55, "DL State: ______________")
     c.drawString(check_x, remit_y - 75, "DL #: _____________________________")
     c.drawString(check_x, remit_y - 95, "DL Exp: __________________")
@@ -369,10 +366,10 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     ## RIGHT SIDE - CREDIT CARD INFO
     ## --------------------------------------------------
 
-    c.setFont("Helvetica", 9)
+    c.setFont(PDF_FONT, 9)
     c.drawString(card_x, remit_y - 18, "[  ] Credit Card")
 
-    c.setFont("Helvetica", 8)
+    c.setFont(PDF_FONT, 8)
     c.drawString(card_x, remit_y - 55, "Card #: __________________________")
     c.drawString(card_x, remit_y - 75, "Exp Date: __________________")
     c.drawString(card_x, remit_y - 95, "CVC: ______________")

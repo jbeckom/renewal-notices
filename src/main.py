@@ -1,7 +1,7 @@
 import pandas as pd
 from api_client import enrich_record_with_mailing_address
 from logger import write_run_summary, write_pdf_detail, write_exception_log
-from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO, LOGS_DIR, LOGO_PATH
+import config as cfg
 from pdf_generator import (
     generate_renewal_notice_pdf,
 )
@@ -15,19 +15,19 @@ from utils import (
 )
 
 
-exception_log = LOGS_DIR / "exception_log.csv"
+exception_log = cfg.EXCEPTION_LOG
 
 # --------------------------------------------------
 # MAIN PROCESS
 # --------------------------------------------------
 
 def main():
-    csv_files = list(INCOMING_DIR.glob("*.csv"))
-    run_summary_log = LOGS_DIR / "run_summary.csv"
-    pdf_detail_log = LOGS_DIR / "pdf_detail.csv"
+    csv_files = list(cfg.INCOMING_DIR.glob("*.csv"))
+    run_summary_log = cfg.RUN_SUMMARY_LOG
+    pdf_detail_log = cfg.PDF_DETAIL_LOG
 
     if not csv_files:
-        print(f"No CSV files found in: {INCOMING_DIR}")
+        print(f"No CSV files found in: {cfg.INCOMING_DIR}")
         return
     
     print(f"Found {len(csv_files)} CSV file(s).\n")
@@ -40,7 +40,7 @@ def main():
 
         # IMPORTANT: header=1 due to FieldPulse CSV output headers are on row 2
         try:
-            df = pd.read_csv(file_path, header=CSV_HEADER_ROW)
+            df = pd.read_csv(file_path, header=cfg.CSV_HEADER_ROW)
         except Exception as e:
             print(f"❌ Failed to read file: {file_path.name}")
             print(f"  Error: {e}\n")
@@ -63,10 +63,10 @@ def main():
 
         for record in records:
             try:
-                # ### TEMP TESTING ONLY - REMOVE ###
-                # if record['account_number'] == "14174319":
-                #     record['account_number'] = "99999999"
-                # ### TEMP TESTING ONLY - REMOVE ###
+                ### TEMP TESTING ONLY - REMOVE ###
+                if record['account_number'] == "14174319":
+                    record['account_number'] = "99999999"
+                ### TEMP TESTING ONLY - REMOVE ###
 
                 enriched_record = enrich_record_with_mailing_address(record)
 
@@ -116,7 +116,7 @@ def main():
 
         for record in records:
             output_dir = build_output_directory(
-                OUTPUT_DIR,
+                cfg.OUTPUT_DIR,
                 record
             )
 
@@ -126,7 +126,7 @@ def main():
             )
 
             # --------------------------------------------------
-            # MAIN PROCESS
+            # RECORD VALIDATION
             # --------------------------------------------------
             record_errors = validate_record(record)
 
@@ -160,17 +160,17 @@ def main():
                 continue
 
             try:
-                # ### TEMP TESTING ONLY - REMOVE ###
-                # if record['account_number'] == "14171809":
-                #     from pathlib import Path
-                #     renewal_pdf_path = Path('/invalid-folder/test.pdf')
-                # ### TEMP TESTING ONLY - REMOVE ###                
+                ### TEMP TESTING ONLY - REMOVE ###
+                if record['account_number'] == "14171809":
+                    from pathlib import Path
+                    renewal_pdf_path = Path('/invalid-folder/test.pdf')
+                ### TEMP TESTING ONLY - REMOVE ###                
 
                 generate_renewal_notice_pdf(
                     record,
                     renewal_pdf_path,
-                    COMPANY_INFO[location],
-                    LOGO_PATH
+                    cfg.COMPANY_INFO[location],
+                    cfg.LOGO_PATH
                 )
 
                 write_pdf_detail(
