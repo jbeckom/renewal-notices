@@ -62,6 +62,9 @@ def main():
 
         for record in records:
             try:
+                if record['account_number'] == "14174319":
+                    record['account_number'] = "99999999"
+
                 enriched_record = enrich_record_with_mailing_address(record)
 
                 if enriched_record['mailing_address']:
@@ -121,6 +124,13 @@ def main():
             pdf_error_count = 0
 
             try:
+                ### TEMP TESTING ONLY - REMOVE ###
+                if record['account_number'] == "14171809":
+                    from pathlib import Path
+                    renewal_pdf_path = Path('/invalid-folder/test.pdf')
+                ### TEMP TESTING ONLY - REMOVE ###
+                
+
                 generate_renewal_notice_pdf(
                     record,
                     renewal_pdf_path,
@@ -168,6 +178,9 @@ def main():
             rows_in_file=len(df),
             records_created=len(records),
             pdfs_created=pdf_count,
+            billing_overrides_found=billing_override_count,
+            api_enrichment_failures=api_error_count,
+            pdf_generation_failures=pdf_error_count,
             status="SUCCESS",
         )
 

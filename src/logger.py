@@ -10,7 +10,10 @@ RUN_SUMMARY_COLUMNS = [
     "rows_in_file",
     "records_created",
     "pdfs_created",
-    "status"
+    "billing_overrides_found",
+    "api_enrichment_failures",
+    "pdf_generation_failures",
+    "status",
 ]
 
 PDF_DETAIL_COLUMNS = [
@@ -43,6 +46,9 @@ def write_run_summary(
         rows_in_file: int,
         records_created: int,
         pdfs_created: int,
+        billing_overrides_found: int,
+        api_enrichment_failures: int,
+        pdf_generation_failures: int,
         status: str,
 ) -> None:
     """
@@ -68,6 +74,9 @@ def write_run_summary(
             "rows_in_file": rows_in_file,
             "records_created": records_created,
             "pdfs_created": pdfs_created,
+            "billing_overrides_found": billing_overrides_found,
+            "api_enrichment_failures": api_enrichment_failures,
+            "pdf_generation_failures": pdf_generation_failures,
             "status": status,
         })
 

@@ -199,6 +199,9 @@ The log includes:
 - rows in file
 - records created
 - PDFs created
+- billing overrides found
+- API enrichment failures
+- PDF generation failures
 - status
 
 This provides a basic audit trail for each processing run.
