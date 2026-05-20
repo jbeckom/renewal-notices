@@ -280,3 +280,25 @@ This allows rapid iteration of:
 
 without processing full renewal batches.
 
+
+## Exception logging
+Processing exceptions are recorded in:
+    'logs/exception_log.csv'
+
+The log includes:
+- run timestamp
+- source CSV file
+- location
+- processing stage
+- agreement ID
+- account number
+- customer name
+- error message
+
+Current logged excpetion stages include:
+- 'API_ENRICHMENT'
+- 'PDF_GENERATION'
+
+If API enrichment fails for a record, the system continues processing and generates the renewal notice using the CSV-derived service address.
+
+If PDF generation fails for a record, the system logs the failure and continues processing the remaining records.

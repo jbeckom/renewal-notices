@@ -1,6 +1,6 @@
 import pandas as pd
 from api_client import enrich_record_with_mailing_address
-from logger import write_run_summary, write_pdf_detail
+from logger import write_run_summary, write_pdf_detail, write_exception_log
 from config import INCOMING_DIR, CSV_HEADER_ROW, OUTPUT_DIR, COMPANY_INFO, LOGS_DIR, LOGO_PATH
 from pdf_generator import (
     generate_renewal_notice_pdf,
@@ -12,6 +12,9 @@ from utils import (
     build_pdf_filename,
     build_output_directory,
 )
+
+
+exception_log = LOGS_DIR / "exception_log.csv"
 
 # --------------------------------------------------
 # MAIN PROCESS
@@ -73,6 +76,15 @@ def main():
             except Exception as e:
                 api_error_count += 1
 
+                write_exception_log(
+                    log_path=exception_log,
+                    source_file=file_path.name,
+                    location=location,
+                    stage="API_ENRICHMENT",
+                    record=record,
+                    error_message=str(e),
+                )
+
                 print(
                     f"⚠️ API enrichment failed for "
                     f"Agreement {record['agreement_id']}"
@@ -106,24 +118,48 @@ def main():
                 build_pdf_filename(record)
             )
 
-            generate_renewal_notice_pdf(
-                record,
-                renewal_pdf_path,
-                COMPANY_INFO[location],
-                LOGO_PATH
-            )
+            pdf_error_count = 0
 
-            write_pdf_detail(
-                log_path=pdf_detail_log,
-                source_file=file_path.name,
-                record=record,
-                pdf_path=renewal_pdf_path,
-                status="CREATED",
-            )
+            try:
+                generate_renewal_notice_pdf(
+                    record,
+                    renewal_pdf_path,
+                    COMPANY_INFO[location],
+                    LOGO_PATH
+                )
 
-            pdf_count += 1
+                write_pdf_detail(
+                    log_path=pdf_detail_log,
+                    source_file=file_path.name,
+                    record=record,
+                    pdf_path=renewal_pdf_path,
+                    status="CREATED",
+                )
+
+                pdf_error_count += 1
+
+            except Exception as e:
+                pdf_error_count += 1
+
+                write_exception_log(
+                    log_path=exception_log,
+                    source_file=file_path.name,
+                    location=location,
+                    stage="PDF_GENERATION",
+                    record=record,
+                    error_message=str(e),
+                )
+
+                print (
+                    f"⚠️ PDF generation failed for "
+                    f"Agreement {record['agreement_id']} | "
+                    f"Account {record['account_number']}: {e}"
+                )
+
+                continue
         
         print(f"Renewal PDFs created: {pdf_count}")
+        print(f"PDF generation failures: {pdf_error_count}")
 
         write_run_summary(
             log_path=run_summary_log,

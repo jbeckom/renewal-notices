@@ -24,6 +24,17 @@ PDF_DETAIL_COLUMNS = [
     "status",
 ]
 
+EXCEPTION_LOG_COLUMNS = [
+    "run_timestamp",
+    "source_file",
+    "location",
+    "stage",
+    "agreement_id",
+    "account_number",
+    "customer_name",
+    "error_message",
+]
+
 
 def write_run_summary(
         log_path: Path,
@@ -93,4 +104,37 @@ def write_pdf_detail(
             "customer_name": record["customer_name"].replace("\n", " | "),
             "pdf_path":str(pdf_path),
             "status": status,
+        })
+
+
+def write_exception_log(
+        log_path: Path,
+        source_file: str,
+        location: str,
+        stage: str,
+        record: dict,
+        error_message: str,
+) -> None:
+    """
+    Append one row to the exception log.
+    """
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_exists = log_path.exists()
+
+    with log_path.open(mode="a", newline="", encoding="utf-8") as log_file:
+        writer = csv.DictWriter(log_file, fieldnames=EXCEPTION_LOG_COLUMNS)
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            "run_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "source_file": source_file,
+            "location": location,
+            "stage": stage,
+            "agreement_id": record.get("agreement_id"),
+            "account_number": record.get("account_number"),
+            "customer_name": record.get("customer_name"),
+            "error_message": error_message,
         })
