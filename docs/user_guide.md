@@ -19,12 +19,6 @@ The tool does not yet:
 ## Planned Enhancements
 Future improvements planned for the renewal notice automation system include:
 
-### Exception Handling
-- Gracefully handle malformed CSV files
-- Handle missing required data fields
-- Capture PDF generation failures
-- Continue processing remaining records when possible
-
 ### Future Logging Enhancements
 - Add structured application logging
 - Support rotating log files
@@ -110,7 +104,7 @@ Each valid CSV row is converted into a clean renewal record before any PDFs are 
 | agreement_id | #ID, with '#' removed |
 | customer_name | Customer Company Name, or First + Last Name |
 | service_address | Location Address, City, State, ZIP Code |
-| billing_address | Reserved for future API enrichment |
+| billing_address | Retrieved from FieldPulse API when different billing address exists |
 | agreement_type | Title |
 | expiration_date | SCA End Date |
 | coverage_through | SCA End Date + 1 year |
@@ -160,10 +154,10 @@ The current layout includes:
 
 ## PDF Naming Convention
 Renewal notice PDFs use the following naming format:
-    '{yymm}-renewal-{location}-{agreement_id}-{customer_name}.pdf'
+    `{yymm}-renewal-{location}-{agreement_id}-{customer_name}.pdf`
 
 Example:
-    '2606-renewal-an-13661-grace-recovery-and-wellness.pdf'
+    `2606-renewal-an-13661-grace-recovery-and-wellness.pdf`
 
 Filename details:
 - 'yymm' is based on the agreement expiration date
@@ -176,11 +170,11 @@ Filename details:
 Renewal notice PDFs are organized by renewal cycle and location.
 
 Structure:
-- 'output/{yymm}/{location}'
+- `output/{yymm}/{location}`
 
 Examples:
-- 'output/2606/an/'
-- 'output/2606/mu'
+- `output/2606/an/`
+- `output/2606/mu`
 
 
 ## PDF Batch Generation
@@ -191,7 +185,7 @@ The number of PDFs created should match the number of records created from the C
 
 ## Run Summary Log
 Each processed CSV file is recorded in:
-    'logs/run_summary.csv'
+    `logs/run_summary.csv`
 
 The log includes:
 - run timestamp
@@ -210,7 +204,7 @@ This provides a basic audit trail for each processing run.
 
 ## PDF Detail Log
 Each generated PDF is recorded in:
-    'logs/pdf_detail.csv'
+    `logs/pdf_detail.csv`
 
 The log includes:
 - run timestamp
@@ -277,7 +271,7 @@ The customer/mailing address section is positioned so the mailing address appear
 
 
 ## PDF Layout Testing
-'pdf_generator.py' includes a standalone testing block using a hardcoded sample record.
+`pdf_generator.py` includes a standalone testing block using a hardcoded sample record.
 
 This allows rapid iteration of:
 - PDF layout
@@ -291,7 +285,7 @@ without processing full renewal batches.
 
 ## Exception Logging
 Processing exceptions are recorded in:
-    'logs/exception_log.csv'
+    `logs/exception_log.csv`
 
 The log includes:
 - run timestamp
@@ -317,11 +311,65 @@ If PDF generation fails for a record, the system logs the failure and continues 
 
 ## Processed File Archiving
 After a renewal CSV file is successfully processed, it is automatically moved from:
-'data/incoming'
+
+`data/incoming`
 
 to:
-'data/processed'
+
+`data/processed`
 
 This prevents previously processed renewal exports from being processed again during future runs.
 
 If a processed file with the same name already exists, a timestamp is appended to the archived filename to prevent overwriting.
+
+
+## Runtime Modes
+This application supports command-line runtime flags for operational control and future automation workflows.
+
+### Dry Run Mode
+Use:
+
+`python src/main.py --dry-run`
+
+Dry run mode:
+- Loads and validates renewal CSV files
+- Builds renewal records
+- Performs API enrichment
+- Generates runtime summaries and logs
+
+Dry run mode does NOT:
+- Generate renewal PDFs
+- Archive processed CSV files
+
+This provides a safe preflight validation mode before production processing runs.
+
+
+## Application Structure
+The project is organized into modular processing layers:
+
+- `main.py`
+    - Application entry point
+    - CLI/runtime argument handling
+    - Top-level orchestration
+
+- `workflow.py`
+    - Renewal processing workflow logic
+    - API enrichment
+    - PDF generation workflow
+    - Runtime summaries
+    - File archiving
+
+- `utils.py`
+    - Low-level reusable helper functions
+    - Data formatting
+    - Record building
+    - Validation helpers
+
+- `pdf_generator.py`
+    - Renewal notice PDF rendering
+
+- `logger.py`
+    - Structured logging utilities
+
+- `config.py`
+    - Centralized configuration/constants
