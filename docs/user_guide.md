@@ -346,6 +346,7 @@ This provides a safe preflight validation mode before production processing runs
 ### Single File Mode
 
 Use:
+
 `python src/main.py --file sca-renewals-an-2606.csv`
 
 Single file mode processes only the specified CSV file from teh incoming directory.
@@ -355,6 +356,31 @@ This is useful for:
 - troubleshooting specific batches
 - controlled operational processing
 
+### Location Filter Mode
+
+Use:
+
+`python src/main.py --location an`
+
+or:
+
+`python src/main.py --location mu`
+
+Location filter mode processes only CSV files matching the specificed location code.
+
+This is useful for:
+- location-specific processing
+- staged operational runs
+- targeted troubleshooting
+
+### Runtime Argument Rules
+
+The following runtime arguments cannot be used together:
+- `--file`
+- `--location`
+
+A specific file selection already determines the processing location.
+
 
 ## Application Structure
 The project is organized into modular processing layers:
@@ -363,6 +389,7 @@ The project is organized into modular processing layers:
     - Application entry point
     - CLI/runtime argument handling
     - Top-level orchestration
+    - Runtime mode validation and file selection
 
 - `workflow.py`
     - Renewal processing workflow logic
