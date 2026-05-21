@@ -30,6 +30,12 @@ def parse_args():
         help="Validate and enrich records without generating PDFs or archiving files.",
     )
 
+    parser.add_argument(
+        "--file",
+        type=str,
+        help="Process only a specific CSV file from the incoming directory.",
+    )
+
     return parser.parse_args()
         
 
@@ -39,7 +45,17 @@ def parse_args():
 
 def main():
     args = parse_args()
-    csv_files = list(cfg.INCOMING_DIR.glob("*.csv"))
+    if args.file:
+        target_file = cfg.INCOMING_DIR / args.file
+
+        if not target_file.exists():
+            print(f"❌ File not found: {target_file}")
+            return
+        
+        csv_files = [target_file]
+
+    else:
+        csv_files = list(cfg.INCOMING_DIR.glob("*.csv"))
 
     if not csv_files:
         print(f"No CSV files found in: {cfg.INCOMING_DIR}")

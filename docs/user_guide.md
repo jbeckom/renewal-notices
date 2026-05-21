@@ -174,7 +174,7 @@ Structure:
 
 Examples:
 - `output/2606/an/`
-- `output/2606/mu`
+- `output/2606/mu/`
 
 
 ## PDF Batch Generation
@@ -342,6 +342,18 @@ Dry run mode does NOT:
 - Archive processed CSV files
 
 This provides a safe preflight validation mode before production processing runs.
+
+### Single File Mode
+
+Use:
+`python src/main.py --file sca-renewals-an-2606.csv`
+
+Single file mode processes only the specified CSV file from teh incoming directory.
+
+This is useful for:
+- targeted reruns
+- troubleshooting specific batches
+- controlled operational processing
 
 
 ## Application Structure
