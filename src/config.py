@@ -10,7 +10,9 @@ INCOMING_DIR = BASE_DIR / "data" / "incoming"
 OUTPUT_DIR = BASE_DIR / "output"
 LOGS_DIR = BASE_DIR / "logs"
 TEMPLATES_DIR = BASE_DIR / "templates"
+PROCESSED_DIR = BASE_DIR / "data" / "processed"
 LOGO_PATH = TEMPLATES_DIR / "SPHC-Logo-BlkText.jpg"
+
 
 CSV_HEADER_ROW = 1
 

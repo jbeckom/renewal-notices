@@ -10,6 +10,7 @@ The tool currently:
 - Creates run-level and record-level log files
 - Supports branded PDF generation using company logo assets
 - Retrieves billing address overrides from the FieldPulse API when applicable
+- Automatically archives processed CSV files
 
 The tool does not yet:
 - Send emails
@@ -312,3 +313,15 @@ If API enrichment fails for a record, the system continues processing and genera
 Records missing critical required data are skipped before PDF generation and logged for manual review.
 
 If PDF generation fails for a record, the system logs the failure and continues processing the remaining records.
+
+
+## Processed File Archiving
+After a renewal CSV file is successfully processed, it is automatically moved from:
+'data/incoming'
+
+to:
+'data/processed'
+
+This prevents previously processed renewal exports from being processed again during future runs.
+
+If a processed file with the same name already exists, a timestamp is appended to the archived filename to prevent overwriting.
