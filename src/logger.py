@@ -38,6 +38,21 @@ EXCEPTION_LOG_COLUMNS = [
     "error_message",
 ]
 
+EMAIL_QUEUE_COLUMNS = [
+    "run_timestamp",
+    "source_file",
+    "location",
+    "agreement_id",
+    "account_number",
+    "customer_name",
+    "email",
+    "subject",
+    "body",
+    "pdf_path",
+    "delivery_method",
+    "status",
+]
+
 
 def write_run_summary(
         log_path: Path,
@@ -146,4 +161,42 @@ def write_exception_log(
             "account_number": record.get("account_number"),
             "customer_name": record.get("customer_name"),
             "error_message": error_message,
+        })
+
+
+def write_email_queue(
+        log_path: Path,
+        source_file: str,
+        record: dict,
+        pdf_path: Path,
+        subject: str,
+        body: str,
+        delivery_method: str,
+        status: str,
+) -> None:
+    """
+    Append one row to the email queue log.
+    """
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_exists = log_path.exists()
+
+    with log_path.open(mode="a", newline="", encoding="utf-8") as log_file:
+        writer = csv.DictWriter(log_file, fieldnames=EMAIL_QUEUE_COLUMNS)
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            "run_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "source_file": source_file,
+            "location": record.get("location"),
+            "agreement_id": record.get("agreement_id"),
+            "account_number": record.get("account_number"),
+            "customer_name": record.get("customer_name", "").replace("\n", " | "),
+            "email": record.get("email"),
+            "subject": subject,
+            "body": body,
+            "delivery_method": delivery_method,
+            "status": status,
         })

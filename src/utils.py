@@ -22,6 +22,7 @@ REQUIRED_COLUMNS = [
     "SCA End Date",
     "Title",
     "Total Annual Fee",
+    "Customer Email"
 ]
 
 
@@ -175,6 +176,7 @@ def build_renewal_record(row: pd.Series, location: str) -> dict:
         "coverage_through": coverage_through.strftime("%-m/%-d/%Y"),
         "payment_due_date": expiration_date.strftime("%-m/%-d/%Y"),
         "total_price": format_currency(row["Total Annual Fee"]),
+        "email": clean_text(row.get("Customer Email"))
     }
 
 def build_renewal_records(df: pd.DataFrame, location: str) -> list[dict]:

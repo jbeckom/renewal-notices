@@ -11,6 +11,8 @@ The tool currently:
 - Supports branded PDF generation using company logo assets
 - Retrieves billing address overrides from the FieldPulse API when applicable
 - Automatically archives processed CSV files
+- Creates an email queue for review/future email automation
+- Flags records without email addresses for print/mail handling
 
 The tool does not yet:
 - Send emails
@@ -412,3 +414,38 @@ The project is organized into modular processing layers:
 
 - `config.py`
     - Centralized configuration/constants
+
+
+## Email Queue Generation
+
+After a renewal PDF is successfully generated, the application creates an email queue record in:
+
+`logs/email_queue.csv`
+
+The email queue is a preparation/review file only. The application does not currently send emails or create Outlook drafts.
+
+The email queue includes:
+- run timestamp
+- source CSV file
+- location
+- agreement ID
+- account number
+- customer name
+- recipient email
+- email subject
+- email body
+- PDF attachment path
+- delivery method
+- status
+
+Delivery method values include:
+- `EMAIL`
+- `PRINT_MAIL`
+
+Status values include:
+- `READY`
+- `MISSING_EMAIL`
+
+If a customer email address exists in the source CSV, the record is marked as `EMAIL` / `READY`.
+
+If no customer email address exists, the record is marked as `PRINT_MAIL` / `MISSING_EMAIL` so the renewal notice can be printed and mailed.

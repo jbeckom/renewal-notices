@@ -55,6 +55,7 @@ REMITTANCE_SEPARATOR_TEXT = (
 RUN_SUMMARY_LOG = LOGS_DIR / "run_summary.csv"
 PDF_DETAIL_LOG = LOGS_DIR / "pdf_detail.csv"
 EXCEPTION_LOG = LOGS_DIR / "exception_log.csv"
+EMAIL_QUEUE_LOG = LOGS_DIR / "email_queue.csv"
 
 
 # --------------------------------------------------
@@ -78,3 +79,12 @@ REQUIRED_RECORD_FIELDS = [
     "payment_due_date",
     "total_price",
 ]
+
+
+# --------------------------------------------------
+# EMAIL CONFIGS
+# --------------------------------------------------
+
+EMAIL_SUBJECT = (
+    "Action Required: Your Safety & Comfort Membership Renewal is enclosed"
+)

@@ -1,8 +1,9 @@
 import pandas as pd
 import config as cfg
 from api_client import enrich_record_with_mailing_address
-from logger import write_pdf_detail, write_exception_log
+from logger import write_pdf_detail, write_exception_log, write_email_queue
 from pdf_generator import generate_renewal_notice_pdf
+from email_builder import build_email_queue_values
 from utils import (
     build_pdf_filename,
     build_output_directory,
@@ -142,6 +143,23 @@ def generate_renewal_pdfs(records, file_path, location):
                 status="CREATED",
             )
 
+            email_values = build_email_queue_values(
+                record,
+                renewal_pdf_path,
+                cfg.COMPANY_INFO[location]
+            )
+
+            write_email_queue(
+                log_path=cfg.EMAIL_QUEUE_LOG,
+                source_file=file_path.name,
+                record=record,
+                pdf_path=renewal_pdf_path,
+                subject=email_values["subject"],
+                body=email_values["body"],
+                delivery_method=email_values["delivery_method"],
+                status=email_values["status"]
+            )
+
             pdf_count += 1 
 
         except Exception as e:
@@ -171,6 +189,9 @@ def generate_renewal_pdfs(records, file_path, location):
             )
 
     return pdf_count, pdf_error_count
+
+
+
 
 
 def print_file_summary(
