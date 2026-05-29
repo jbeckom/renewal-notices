@@ -84,6 +84,8 @@ def generate_renewal_pdfs(records, file_path, location):
 
     pdf_count = 0
     pdf_error_count = 0
+    email_ready_count = 0
+    print_mail_count = 0
 
     for record in records:
         output_dir = build_output_directory(
@@ -149,6 +151,12 @@ def generate_renewal_pdfs(records, file_path, location):
                 cfg.COMPANY_INFO[location]
             )
 
+            if email_values["delivery_method"] == "EMAIL":
+                email_ready_count += 1
+
+            if email_values["delivery_method"] == "PRINT_MAIL":
+                print_mail_count += 1
+
             write_email_queue(
                 log_path=cfg.EMAIL_QUEUE_LOG,
                 source_file=file_path.name,
@@ -188,10 +196,7 @@ def generate_renewal_pdfs(records, file_path, location):
                 f"Account {record['account_number']}: {e}"
             )
 
-    return pdf_count, pdf_error_count
-
-
-
+    return pdf_count, pdf_error_count, email_ready_count, print_mail_count
 
 
 def print_file_summary(
@@ -203,6 +208,8 @@ def print_file_summary(
         pdf_count,
         pdf_error_count,
         status,
+        email_ready_count,
+        print_mail_count,
 ):
     """
     Print a clean runtime summary for one processed file.
@@ -218,6 +225,8 @@ def print_file_summary(
     print(f"Renewal PDFs created: {pdf_count}")
     print(f"PDF generation failures: {pdf_error_count}")
     print(f"Status: {status}")
+    print(f"Email ready: {email_ready_count}")
+    print(f"Print/mail needed: {print_mail_count}")
     print("-" * 50)
 
 

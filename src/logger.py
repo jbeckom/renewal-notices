@@ -14,6 +14,8 @@ RUN_SUMMARY_COLUMNS = [
     "api_enrichment_failures",
     "pdf_generation_failures",
     "status",
+    "email_ready_count",
+    "print_mail_count",
 ]
 
 PDF_DETAIL_COLUMNS = [
@@ -65,6 +67,8 @@ def write_run_summary(
         api_enrichment_failures: int,
         pdf_generation_failures: int,
         status: str,
+        email_ready_count: int,
+        print_mail_count: int,
 ) -> None:
     """
     Append one row to the run summary CSV log.
@@ -93,6 +97,8 @@ def write_run_summary(
             "api_enrichment_failures": api_enrichment_failures,
             "pdf_generation_failures": pdf_generation_failures,
             "status": status,
+            "email_ready_count": email_ready_count,
+            "print_mail_count": print_mail_count,
         })
 
 

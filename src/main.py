@@ -163,7 +163,7 @@ def main():
             continue
 
         # Generate renewal PDFs and capture success/failure counts.
-        pdf_count, pdf_error_count = generate_renewal_pdfs(
+        pdf_count, pdf_error_count, email_ready_count, print_mail_count = generate_renewal_pdfs(
             records,
             file_path,
             location,
@@ -185,6 +185,8 @@ def main():
             pdf_count=pdf_count,
             pdf_error_count=pdf_error_count,
             status=status,
+            email_ready_count=email_ready_count,
+            print_mail_count=print_mail_count
         )
 
         # Write the run-level summary log
@@ -199,6 +201,8 @@ def main():
             api_enrichment_failures=api_error_count,
             pdf_generation_failures=pdf_error_count,
             status=status,
+            email_ready_count=email_ready_count,
+            print_mail_count=print_mail_count,
         )
 
         # Move successfully processed source CSV out of the incoming folder
