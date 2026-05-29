@@ -21,14 +21,14 @@ Automates the generation of branded renewal notice PDFs for Summers Plumbing Hea
 1. Clone repository
 2. Create virtual environment
 3. Install requirement
-4. Configure '.env'
-5. Place renewal CSV files in 'data/incoming'
-6. Run 'python src/main.py'
+4. Configure `.env`
+5. Place renewal CSV files in `data/incoming`
+6. Run `python src/main.py`
 
 
 ## Documentation
 See:
-- 'docs/user_guide.md'
+- `docs/user_guide.md`
 
 
 ## Current Status

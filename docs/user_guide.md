@@ -449,3 +449,26 @@ Status values include:
 If a customer email address exists in the source CSV, the record is marked as `EMAIL` / `READY`.
 
 If no customer email address exists, the record is marked as `PRINT_MAIL` / `MISSING_EMAIL` so the renewal notice can be printed and mailed.
+
+Email bodies are generated dynamically from renewal record data.
+
+Current personalization includes:
+- First-name greeting
+- Company records use the contact name from the "Attn:" line
+- Greeting names are automatically converted to proper case
+
+Examples:
+- John Smith → "Hello John,"
+- ACME Plumbing / Attn: Sarah Johnson → "Hello Sarah,"
+
+
+## Email Personlization
+
+Renewal email content supports basic customer personalization.
+
+Current personalization features include:
+- First-name greetings
+- Contact-name extraction for company accounts
+- Proper-case name formatting
+
+Additional personlization may be added in future email automation phases.

@@ -6,13 +6,13 @@ def build_email_body(record: dict, company_info: dict) -> str:
     Build the customer-facing renewal email body.
     """
 
-    customer_name = record.get("customer_name", "").split("\n")[0]
+    greeting_name = get_email_greeting_name(record)
     coverage_through = record.get("coverage_through")
     total_price = record.get("total_price")
     payment_due_date = record.get("payment_due_date")
 
     return(
-        f"Hello {customer_name},\n\n"
+        f"Hello {greeting_name},\n\n"
         "Your Safety & Comfort Membership is coming up for renewal. "
         "We've attached your renewal notice with the coverage details, "
         "renewal date, and amount due.\n\n"
@@ -47,3 +47,24 @@ def build_email_queue_values(record: dict, pdf_path, company_info:dict) -> dict:
         "delivery_method": delivery_method,
         "status": status
     }
+
+
+def get_email_greeting_name(record: dict) -> str:
+    """
+    Determine the preferred greeting name for the renewal email.
+    """
+
+    customer_name = record.get("customer_name", "")
+
+    lines = customer_name.split("\n")
+
+    # Company records are stored as:
+    # Company Name
+    # Attn: First Last
+    if len(lines) > 1 and lines[1].startswith("Attn:"):
+        attn_name = lines[1].replace("Attn:", "").strip()
+        return attn_name.split()[0].title()
+    
+    # Residential customers:
+    # First Last
+    return lines[0].split()[0].title()
