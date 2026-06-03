@@ -18,30 +18,47 @@ The tool does not yet:
 - Send emails
 
 
-## Planned Enhancements
-Future improvements planned for the renewal notice automation system include:
+## Quick Start
 
-### Future Logging Enhancements
-- Add structured application logging
-- Support rotating log files
-- Add log severity levels
-- Generate automated exception summary reports
+Monthly processing requires:
 
-### API Enrichment
-- Retrieve additional customer/account metadata
-- Support deeper account validation
-- Potentially enrich agreement-level data
+1. Export the renewal CSV from FieldPulse.
+2. Save the file to `data/incoming`
+3. Run:
 
-### Email Automation
-- Generate standardized renewal email bodies
-- Attach renewal PDFs automatically
-- Support review/approval workflows before send
-- Track send statuses and failures
+    `python src/main.py`
 
-### Cloud Migration
-- Migrate processing workflow to AWS
-- Integrate with SharePoint document storage
-- Automate scheduled renewal processing
+4. Review:
+    - `logs/run_summary.csv`
+    - `logs/exception_log.csv`
+    - `logs/email_queue.csv`
+
+5. Print/mail any records marked:
+    -  `PRINT_MAIL`
+    - `MISSING_EMAIL`
+
+6. Verify PDFs were generated in the appropriate output folder:
+    - `output/{yymm}/{location}`
+
+
+## Monthly Processing Procedure
+
+1. Export renewal file from FieldPulse.
+2. Save the CSV file to `data/incoming`
+3. Open a terminal in the project folder.
+4. Run:
+
+    `python src/main.py`
+
+5. Verify PDFs are generated.
+6. Review:
+    - run_summary.csv
+    - exception_log.csv
+    - email_queue.csv
+7. Print/mail any records marked:
+    - PRINT_MAIL
+    - MISSING_EMAIL
+8. Archive output files according to company policy.
 
 
 ## Input Files
@@ -55,18 +72,6 @@ The filename should include the location code:
 Example filenames:
 - `sca-renewals-an-2606.csv`
 - `sca-renewals-mu-2606.csv`
-
-
-## Environment Variables
-Sensitive configuration values are stored in:
-- `.env`
-
-The repository also includes:
-- `.env.example`
-
-Environment variables currently support:
-- FieldPulse API base URL
-- FieldPulse API keys
 
 
 ## File Validation
@@ -89,69 +94,87 @@ The following columns are required:
 If any required column is missing, the file will be skipped and logged.
 
 
-## Record Processing
-After validation, each row in the CSV file is converted into a renewal record.
-The total number of records created should match the number of rows in the CSV file.
-This ensures all customers in the export are processed.
+## Runtime Modes
+This application supports command-line runtime flags for operational control and future automation workflows.
+
+### Dry Run Mode
+Use:
+
+`python src/main.py --dry-run`
+
+Dry run mode:
+- Loads and validates renewal CSV files
+- Builds renewal records
+- Performs API enrichment
+- Generates runtime summaries and logs
+
+Dry run mode does NOT:
+- Generate renewal PDFs
+- Archive processed CSV files
+
+This provides a safe preflight validation mode before production processing runs.
+
+### Single File Mode
+
+Use:
+
+`python src/main.py --file sca-renewals-an-2606.csv`
+
+Single file mode processes only the specified CSV file from the incoming directory.
+
+This is useful for:
+- targeted reruns
+- troubleshooting specific batches
+- controlled operational processing
+
+### Location Filter Mode
+
+Use:
+
+`python src/main.py --location an`
+
+or:
+
+`python src/main.py --location mu`
+
+Location filter mode processes only CSV files matching the specified location code.
+
+This is useful for:
+- location-specific processing
+- staged operational runs
+- targeted troubleshooting
+
+### Runtime Argument Rules
+
+The following runtime arguments cannot be used together:
+- `--file`
+- `--location`
+
+A specific file selection already determines the processing location.
 
 
-## Renewal Record Mapping
-Each valid CSV row is converted into a clean renewal record before any PDFs are generated.
+## Expected Outputs
 
-| Renewal Record Field | Source |
-|---|---|
-| location | Derived from filename: 'an' or 'mu' |
-| run_date | Current system date |
-| account_number | Customer #, with '#' removed |
-| agreement_id | #ID, with '#' removed |
-| customer_name | Customer Company Name, or First + Last Name |
-| service_address | Location Address, City, State, ZIP Code |
-| billing_address | Retrieved from FieldPulse API when different billing address exists |
-| agreement_type | Title |
-| expiration_date | SCA End Date |
-| coverage_through | SCA End Date + 1 year |
-| payment_due_date | SCA End Date |
-| total_price | Total Annual Fee |
+A successful processing run should produce:
+
+- Generated renewal notice PDFs
+- Run summary log entries
+- PDF detail log entries
+- Email queue records
+- Archived source CSV files
+
+Review the generated logs after each run to identify any exceptions or records requiring manual handling.
 
 
-## Customer Name Formatting
-Customer names are formatted as follows:
+## Output Directory Structure
+Renewal notice PDFs are organized by renewal cycle and location.
 
-- If a company name exists:
-    'Company Name'
-    'Attn: First Last'
+Structure:
+- `output/{yymm}/{location}`
 
-- If no company name exists:
-    'First Last'
-
-
-## Service Address Formatting
-The export's 'Location Address' field contains the full address, including city, state, and ZIP Code.
-To avoid duplicate address lines, the tool extracts only the street address from 'Location Address', then uses the separate 'City', 'State', and 'ZIP Code' fields for the second line.
-
-
-## Data Normalization
-Certain placeholder values in the source data are treated as empty:
-- '-'
-- blank values
-- null/NaN values
-
-This prevents placeholder data from appearing on renewal notices.
-
-
-## Structured PDF Generation
-The PDF generation module now supports branded, structured renewal notice rendering.
-
-The current layout includes:
-- company logo and branding
-- company contact information
-- renewal notice title
-- account information
-- customer and service address section
-- customer-facing renewal message
-- agreement details
-- payment details
-- detachable remittance section
+Examples:
+- `output/2606/an/`
+- `output/2606/mu/`
 
 
 ## PDF Naming Convention
@@ -168,21 +191,61 @@ Filename details:
 - Special characters and spaces are converted to hyphens
 
 
-## Output Directory Structure
-Renewal notice PDFs are organized by renewal cycle and location.
-
-Structure:
-- `output/{yymm}/{location}`
-
-Examples:
-- `output/2606/an/`
-- `output/2606/mu/`
-
-
 ## PDF Batch Generation
 After validation and record creation, the application generates one PDF renewal notice for each renewal record.
 
 The number of PDFs created should match the number of records created from the CSV file.
+
+
+## Renewal Notice Content
+
+Each PDF includes a short customer-facing message explaining that the customer's maintenance agreement is coming up for renewal.
+
+### Agreement Information
+
+Each renewal notice includes:
+
+- Agreement number
+- Agreement type
+- Expiration date
+- Renewal amount
+- Customer account number
+
+### Billing Address API Enrichment
+
+During processing, each renewal record is checked against the FieldPulse API.
+
+If FieldPulse indicates that the customer has a different billing address, the renewal notice uses the billing address in the customer/mailing address section.
+
+If no different billing address exists, the renewal notice uses the service address from the CSV export.
+
+The service address is always shown separately on the renewal notice.
+
+### Renewal Notice Layout
+
+The generated renewal notice includes:
+
+- Company branding
+- Customer mailing information
+- Service address information
+- Agreement details
+- Renewal pricing
+- Remittance/payment section
+
+### Remittance Section
+The renewal notice includes a detachable remittance/payment section designed for mailed payments.
+
+Current remittance features include:
+- Account number
+- Agreement number
+- Customer name
+- Service address
+- Amount due
+- Payment method selection
+- Check payment information
+- Driver's license verification fields
+- Credit card entry fields
+- Payable-to information
 
 
 ## Run Summary Log
@@ -225,66 +288,6 @@ Possible status values include:
 This provides a record-level audit trail for both successful and failed PDF generation attempts.
 
 
-## Renewal Notice Message
-Each PDF includes a short customer-facing message explaining that the customer's maintenance agreement is coming up for renewal.
-
-
-## Billing Address API Enrichment
-During processing, each renewal record is checked against the FieldPulse API.
-
-If FieldPulse indicates that the customer has a different billing address, the renewal notice uses the billing address in the customer/mailing address section.
-
-If no different billing address exists, the renewal notice uses the service address from the CSV export.
-
-The service address is always shown separately on the renewal notice.
-
-
-## Renewal Notice Layout Updates
-The renewal notice PDF now includes:
-- Company logo branding
-- Mailing address override support from FieldPulse
-- Separate mailing and service address sections
-- Condensed agreement/payment summary layout
-- Remittance/payment return section
-- "Make checks payable to" support using company legal entity name
-
-The PDF layout is optimized for standard tri-fold mailing and window envelopes.
-
-## Remittance Section
-The renewal notice includes a detachable remittance/payment section designed for mailed payments.
-
-Current remittance features include:
-- Account number
-- Agreement number
-- Customer name
-- Service address
-- Amount due
-- Payment method selection
-- Check payment information
-- Driver's license verification fields
-- Credit card entry fields
-- Payable-to information
-
-
-## Window Envelope Alignment
-The renewal notice layout is adjusted for standard tri-fold mailing and window envelope visibility.
-
-The customer/mailing address section is positioned so the mailing address appears in the envelope window when folded.
-
-
-## PDF Layout Testing
-`pdf_generator.py` includes a standalone testing block using a hardcoded sample record.
-
-This allows rapid iteration of:
-- PDF layout
-- Window envelope alignment
-- Logo sizing
-- Remittance formatting
-- Payment field spacing
-
-without processing full renewal batches.
-
-
 ## Exception Logging
 Processing exceptions are recorded in:
     `logs/exception_log.csv`
@@ -309,111 +312,6 @@ If API enrichment fails for a record, the system continues processing and genera
 Records missing critical required data are skipped before PDF generation and logged for manual review.
 
 If PDF generation fails for a record, the system logs the failure and continues processing the remaining records.
-
-
-## Processed File Archiving
-After a renewal CSV file is successfully processed, it is automatically moved from:
-
-`data/incoming`
-
-to:
-
-`data/processed`
-
-This prevents previously processed renewal exports from being processed again during future runs.
-
-If a processed file with the same name already exists, a timestamp is appended to the archived filename to prevent overwriting.
-
-
-## Runtime Modes
-This application supports command-line runtime flags for operational control and future automation workflows.
-
-### Dry Run Mode
-Use:
-
-`python src/main.py --dry-run`
-
-Dry run mode:
-- Loads and validates renewal CSV files
-- Builds renewal records
-- Performs API enrichment
-- Generates runtime summaries and logs
-
-Dry run mode does NOT:
-- Generate renewal PDFs
-- Archive processed CSV files
-
-This provides a safe preflight validation mode before production processing runs.
-
-### Single File Mode
-
-Use:
-
-`python src/main.py --file sca-renewals-an-2606.csv`
-
-Single file mode processes only the specified CSV file from teh incoming directory.
-
-This is useful for:
-- targeted reruns
-- troubleshooting specific batches
-- controlled operational processing
-
-### Location Filter Mode
-
-Use:
-
-`python src/main.py --location an`
-
-or:
-
-`python src/main.py --location mu`
-
-Location filter mode processes only CSV files matching the specificed location code.
-
-This is useful for:
-- location-specific processing
-- staged operational runs
-- targeted troubleshooting
-
-### Runtime Argument Rules
-
-The following runtime arguments cannot be used together:
-- `--file`
-- `--location`
-
-A specific file selection already determines the processing location.
-
-
-## Application Structure
-The project is organized into modular processing layers:
-
-- `main.py`
-    - Application entry point
-    - CLI/runtime argument handling
-    - Top-level orchestration
-    - Runtime mode validation and file selection
-
-- `workflow.py`
-    - Renewal processing workflow logic
-    - API enrichment
-    - PDF generation workflow
-    - Runtime summaries
-    - File archiving
-
-- `utils.py`
-    - Low-level reusable helper functions
-    - Data formatting
-    - Record building
-    - Validation helpers
-
-- `pdf_generator.py`
-    - Renewal notice PDF rendering
-
-- `logger.py`
-    - Structured logging utilities
-
-- `config.py`
-    - Centralized configuration/constants
 
 
 ## Email Queue Generation
@@ -462,56 +360,90 @@ Examples:
 - ACME Plumbing / Attn: Sarah Johnson → "Hello Sarah,"
 
 
-## Email Personlization
+## Email Automation Status
 
-Renewal email content supports basic customer personalization.
+The system currently prepares email queue records but does not actually send customer emails.
 
-Current personalization features include:
-- First-name greetings
-- Contact-name extraction for company accounts
-- Proper-case name formatting
+Development work is currently underway to support:
 
-Additional personlization may be added in future email automation phases.
+- Outlook draft creation
+- PDF attachments
+- Shared mailbox workflows
 
-
-## Microsoft Graph Authentication
-
-The email automation branch uses Microsoft Graph for future Outlook draft creation and shared mailbox access. 
-
-Current Graph setup includes:
-- Entra app registration
-- Delegated Microsoft Graph permissions
-- Interactive user authentication
-- Shared mailbox access validation
-- Local MSAL token caching
-
-The shared mailbox currently configured for renewal email is:
+Current shared mailbox:
 
 `renewals@an.summersphc.com`
 
-The token cache file is stored locally as:
+Current draft creation capabilities include:
 
-`.graph_token_cache.bin`
-
-This file is excluded from Git and should never be committed.
-
-Token caching allows the application to reuse a valid Microsoft Graph authentication token between runs, reducing repeated browser sign-ins during local development.
-
-If the token expires, is invalidated, or the cache file is deleted, the application will prompt for authentication again.
-
-
-## Outlook Draft Creation
-
-The email automation branch support Microsoft Graph draft creation.
-
-Current capabilities include:
-- Authentication via Microsoft Entra ID
+- Microsoft Graph authentication
 - Shared mailbox access
-- Local token caching
 - Draft message creation
+- PDF attachment development (in progress)
 
-Drafts are currently created in:
 
-`renewals@an.summersphc.com`
+## Processed File Archiving
+After a renewal CSV file is successfully processed, it is automatically moved from:
 
-Draft creation is used for testing and validation prior to implementing automated queue processing.
+`data/incoming`
+
+to:
+
+`data/processed`
+
+This prevents previously processed renewal exports from being processed again during future runs.
+
+If a processed file with the same name already exists, a timestamp is appended to the archived filename to prevent overwriting.
+
+
+## Troubleshooting
+
+### No PDFs Generated
+
+Check:
+- CSV file exists in `data/incoming`
+- Required columns are present
+- Review `logs/exception_log.csv`
+
+### Missing Billing Address Override
+
+The system automatically checks FieldPulse for alternate billing addresses.
+
+If the lookup fails, the service address will be used instead.
+
+Review:
+- `logs/exception_log.csv`
+
+### Missing Email Address
+
+Records without an email address will be marked:
+
+- `PRINT_MAIL`
+- `MISSING_EMAIL`
+
+These customers should receive a printed renewal notice.
+
+### API Errors
+
+If FieldPulse API enrichment fails:
+
+- Processing will continue.
+- Renewal notices will still be staged.
+- Failures will be logged in `logs/exception_log.csv`
+
+If an issue cannot be resolved through the steps above, review:
+- `logs/run_summary.csv`
+- `logs/exception_log.csv`
+
+These logs contain the most detailed processing information available.
+
+
+## Planned Enhancements
+
+Future improvements include:
+
+- Enhanced logging and reporting
+- Additional FieldPulse enrichment
+- Outlook email automation
+- SharePoint integration
+- Cloud-based processing
