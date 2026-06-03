@@ -46,23 +46,23 @@ Future improvements planned for the renewal notice automation system include:
 
 ## Input Files
 Monthly renewal exports should be saved as CSV files in:
-- 'data/incoming'
+- `data/incoming`
 
 The filename should include the location code:
-- 'an' for Anderson
-- 'mu' for Muncie
+- "an" for Anderson
+- "mu" for Muncie
 
 Example filenames:
-- 'sca-renewals-an-2606.csv'
-- 'sca-renewals-mu-2606.csv'
+- `sca-renewals-an-2606.csv`
+- `sca-renewals-mu-2606.csv`
 
 
 ## Environment Variables
 Sensitive configuration values are stored in:
-- '.env'
+- `.env`
 
 The repository also includes:
-- '.env.example'
+- `.env.example`
 
 Environment variables currently support:
 - FieldPulse API base URL
@@ -472,3 +472,29 @@ Current personalization features include:
 - Proper-case name formatting
 
 Additional personlization may be added in future email automation phases.
+
+
+## Microsoft Graph Authentication
+
+The email automation branch uses Microsoft Graph for future Outlook draft creation and shared mailbox access. 
+
+Current Graph setup includes:
+- Entra app registration
+- Delegated Microsoft Graph permissions
+- Interactive user authentication
+- Shared mailbox access validation
+- Local MSAL token caching
+
+The shared mailbox currently configured for renewal email is:
+
+`renewals@an.summersphc.com`
+
+The token cache file is stored locally as:
+
+`.graph_token_cache.bin`
+
+This file is excluded from Git and should never be committed.
+
+Token caching allows the application to reuse a valid Microsoft Graph authentication token between runs, reducing repeated browser sign-ins during local development.
+
+If the token expires, is invalidated, or the cache file is deleted, the application will prompt for authentication again.
