@@ -1,6 +1,7 @@
 import os
 import requests
 import msal
+import base64
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -127,19 +128,85 @@ def create_shared_mailbox_draft(
     )
 
 
-if __name__ == "__main__":
-    # me = graph_get("/me")
-    # print(me)
+def attach_file_to_message(
+        mailbox: str,
+        message_id: str,
+        file_path: str | Path,
+) -> dict:
+    """
+    Attach a file to an existing draft message.
+    """
 
-    # mailbox = graph_get(
-    #     "/users/renewals@an.summersphc.com/mailFolders"
-    # )
+    file_path = Path(file_path)
 
-    draft = create_shared_mailbox_draft(
-        mailbox=os.getenv("GRAPH_SHARED_MAILBOX"),
-        to_email="jbeckom@gmail.com",
-        subject="Test renewal draft",
-        body="This is a test draft created by the renewal notice automation project."
+    file_bytes = file_path.read_bytes()
+    encoded_content = base64.b64encode(file_bytes).decode("utf-8")
+
+    payload = {
+        "@odata.type": "#microsoft.graph.fileAttachment",
+        "name": file_path.name,
+        "contentType": "application/pdf",
+        "contentBytes": encoded_content,
+    }
+
+    return graph_post(
+        f"/users/{mailbox}/messages/{message_id}/attachments",
+        payload,
     )
 
-    print(draft)
+
+def create_shared_mailbox_draft_with_attachment (
+        mailbox: str,
+        to_email: str,
+        subject: str,
+        body: str,
+        file_path: str | Path,
+) -> dict:
+    """
+    Create a draft message with a required PDF attachment.
+
+    The attachment is validated before the draft is created to avoid
+    creating customer-facing drafts without renewal notices attached.
+    """
+
+    file_path = Path(file_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Attachment file not found: {file_path}")
+    
+    if file_path.suffix.lower() != ".pdf":
+        raise ValueError(f"Attachment must be a PDF file: {file_path}")
+    
+    draft = create_shared_mailbox_draft(
+        mailbox=mailbox,
+        to_email=to_email,
+        subject=subject,
+        body=body
+    )
+
+    attachment = attach_file_to_message(
+        mailbox=mailbox,
+        message_id=draft["id"],
+        file_path=file_path
+    )
+
+    return {
+        "draft": draft,
+        "attachment": attachment,
+    }
+
+
+if __name__ == "__main__":
+
+    mailbox = os.getenv("GRAPH_SHARED_MAILBOX")
+
+    result = create_shared_mailbox_draft_with_attachment(
+        mailbox=mailbox,
+        to_email="jbeckom@gmail.com",
+        subject="Test renewal draft with attachment",
+        body="This is a test draft with a PDF attachment.",
+        file_path="output/2606/mu/2606-renewal-mu-6513-sue-davis.pdf"
+    )
+
+    print("Draft created:", result["draft"]["id"])
+    print("Attachment added:", result["attacment"].get("name"))

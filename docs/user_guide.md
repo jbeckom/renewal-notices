@@ -15,7 +15,9 @@ The tool currently:
 - Flags records without email addresses for print/mail handling
 - Authenticates with Microsoft Graph
 - Accesses the renewals shared mailbox
-- Creates Outlook draft messages for testing and validation
+- Creates Outlook draft messages from email queue records
+- Attaches renewal notice PDFs to draft messages
+- Validates PDF attachment paths before draft creation
 
 The tool does not yet:
 - Send emails
@@ -366,6 +368,10 @@ Examples:
 ## Email Automation Status
 
 The system currently prepares email queue records and supports Outlook draft creation using Microsoft Graph.
+
+The system can currenly create a single Outlook draft from an `EMAIL / READY` email queue record and attach the matching renewal PDF.
+
+Draft creation is intentionally limited to one queue record during validation.  Batch draft creation will be added after draft logging is implemented.
 
 Future development will add:
 
