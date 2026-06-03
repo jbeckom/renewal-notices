@@ -79,12 +79,67 @@ def graph_get(endpoint: str) -> dict:
     return response.json()
 
 
+def graph_post(endpoint: str, payload: dict) -> dict:
+    token = get_access_token()
+
+    response = requests.post(
+        f"https://graph.microsoft.com/v1.0{endpoint}",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=30,
+    )
+
+    response.raise_for_status()
+
+    if response.text:
+        return response.json()
+    
+    return {}
+
+
+def create_shared_mailbox_draft(
+        mailbox: str,
+        to_email: str,
+        subject: str,
+        body: str,
+) -> dict:
+    payload = {
+        "subject": subject,
+        "body": {
+            "contentType": "Text",
+            "content": body,
+        },
+        "toRecipients": [
+            {
+                "emailAddress": {
+                    "address": to_email,
+                }
+            }
+        ],
+    }
+
+    return graph_post(
+        f"/users/{mailbox}/messages",
+        payload,
+    )
+
+
 if __name__ == "__main__":
     # me = graph_get("/me")
     # print(me)
 
-    mailbox = graph_get(
-        "/users/renewals@an.summersphc.com/mailFolders"
+    # mailbox = graph_get(
+    #     "/users/renewals@an.summersphc.com/mailFolders"
+    # )
+
+    draft = create_shared_mailbox_draft(
+        mailbox=os.getenv("GRAPH_SHARED_MAILBOX"),
+        to_email="jbeckom@gmail.com",
+        subject="Test renewal draft",
+        body="This is a test draft created by the renewal notice automation project."
     )
 
-    print(mailbox)
+    print(draft)

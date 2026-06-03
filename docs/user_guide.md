@@ -498,3 +498,20 @@ This file is excluded from Git and should never be committed.
 Token caching allows the application to reuse a valid Microsoft Graph authentication token between runs, reducing repeated browser sign-ins during local development.
 
 If the token expires, is invalidated, or the cache file is deleted, the application will prompt for authentication again.
+
+
+## Outlook Draft Creation
+
+The email automation branch support Microsoft Graph draft creation.
+
+Current capabilities include:
+- Authentication via Microsoft Entra ID
+- Shared mailbox access
+- Local token caching
+- Draft message creation
+
+Drafts are currently created in:
+
+`renewals@an.summersphc.com`
+
+Draft creation is used for testing and validation prior to implementing automated queue processing.
