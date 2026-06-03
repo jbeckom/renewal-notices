@@ -16,6 +16,52 @@ The system is designed to support:
 
 ---
 
+## Architecture Principles
+
+The project is designed around several core principles:
+
+### Fail One Record, Not the Entire Batch
+
+Processing should continue whenever possible.
+
+A single customer record failure should not prevent other renewal notices from being generated.
+
+### Preserve Source Data Integrity
+
+Source CSV exports are treated as read-only inputs.
+
+All processing, enrichment, and output generation occur separately from the original source file.
+
+### Append-Only Audit Trail
+
+Logs are written in an append-only manner to preserve historical processing data and support troubleshooting.
+
+### Separation of Responsibilities
+
+Application components are organized by responsibility:
+
+- orchestration
+- workflow processing
+- PDF generation
+- email preparation
+- logging
+- external integrations
+
+### Operator-Friendly Design
+
+The long-term goal is for a non-technical employee to safely operate the system without modifying source code.
+
+### Cloud Readiness
+
+The architecture is designed to support future migration to:
+
+- SharePoint storage
+- Microsoft Graph automation
+- web-based processing
+- cloud-hosted execution
+
+---
+
 ## Current Architecture Overview
 
 The application currently runs as a local Python command-line workflow.
@@ -30,6 +76,37 @@ High-level flow:
 6. Create email queue records
 7. Write processing logs
 8. Archive processed CSV files to `data/processed`
+
+---
+
+## Processing Flow
+
+```text
+FieldPulse Export CSV
+        │
+        ▼
+CSV Validation
+        │
+        ▼
+Record Building
+        │
+        ▼
+FieldPulse API Enrichment
+        │
+        ▼
+PDF Generation
+        │
+        ├────────► PDF Detail Log
+        │
+        ▼
+Email Queue Generation
+        │
+        ▼
+Run Summary Log
+        │
+        ▼
+Archive Source File
+```
 
 ---
 
@@ -63,7 +140,7 @@ Responsibilities:
 - create email queue records
 - print runtime summaries
 - archive processed files
-- log processing expectations
+- log processing exceptions
 
 ### `utils.py`
 
@@ -73,7 +150,6 @@ Responsibilities:
 - detect location from filename
 - validate CSV columns
 - clean text and ID fields
-- format dates and currency
 - build customer names
 - build service addresses
 - build renewal records
@@ -93,6 +169,18 @@ Responsibilities:
 - render detachable remittance section
 - support standalone test PDF generation
 
+#### Development Testing
+`pdf_generator.py` includes a standalone testing block using a hardcoded sample record.
+
+This allows rapid iteration of:
+- PDF layout
+- Window envelope alignment
+- Logo sizing
+- Remittance formatting
+- Payment field spacing
+
+without processing full renewal batches.
+
 ### `email_builder.py`
 
 Responsible for preparing email queue content.
@@ -101,7 +189,7 @@ Responsibilities:
 - build email subject/body values
 - generate personalized greetings
 - use first-name greeting logic
-- use comany contact first name from `Attn:` lines
+- use company contact first name from `Attn:` lines
 - apply proper-case formatting to greeting names
 - determine delivery method:
     - `EMAIL`
@@ -179,6 +267,30 @@ The renewal record becomes the common internal data object used by:
 - logging
 - API enrichment
 
+#### Customer Name Formatting
+Customer names are formatted as follows:
+
+- If a company name exists:
+    'Company Name'
+    'Attn: First Last'
+
+- If no company name exists:
+    'First Last'
+
+
+#### Service Address Formatting
+The export's 'Location Address' field contains the full address, including city, state, and ZIP Code.
+To avoid duplicate address lines, the tool extracts only the street address from 'Location Address', then uses the separate 'City', 'State', and 'ZIP Code' fields for the second line.
+
+
+#### Data Normalization
+Certain placeholder values in the source data are treated as empty:
+- '-'
+- blank values
+- null/NaN values
+
+This prevents placeholder data from appearing on renewal notices.
+
 ### API Enrichment
 
 Each renewal record is checked against the FieldPulse API.
@@ -238,55 +350,19 @@ If a file with the same name already exists, a timestamp is appended to prevent 
 
 ---
 
-## Runtime Modes
+## Runtime Execution
 
-### Standard Run
+The application is executed through `main.py`
 
-```bash
-python src/main.py
-```
+Runtime behavior is controlled through command-line arguments.
 
-Processes all CSV files in `data/incoming`.
+Supported runtime modes include:
+- standard processing
+- dry-run processing
+- single-file processing
+- location-filtered processing
 
-### Dry Run
-
-```bash
-python src/main.py --dry-run
-```
-
-Processes validation and API enrichment, but does not:
-- generate PDFs
-- create email queue records
-- archive source CSV files
-
-Dry run mode is intended for testing new changes without modifying production data.
-
-### Single File
-
-```bash
-python src/main.py --file sca-renewals-an-2606.csv
-```
-
-Processes only the specified incoming file.
-
-Useful for:
-- testing
-- troubleshooting
-- reprocessing a specific export
-
-### Location Filter
-
-```bash
-python src/main.py --location an
-```
-
-Processes only files matching the selected location.
-
-Supported locations:
-- `an`
-- `mu`
-
-The `--file` and `--location` arguments are mutually exclusive.
+Detailed usage is documented in `docs/user_guide.md`
 
 ---
 
@@ -296,88 +372,25 @@ The application uses CSV-based logging for auditing, troubleshooting, and report
 
 ### Run Summary Log
 
-Location:
-
-`logs/run_summary.csv`
-
-One row is written per source CSV file processed.
-
-Tracks:
-- source file
-- rows processed
-- records created
-- PDFs generated
-- billing overrides found
-- API failures
-- PDF failures
-- email-ready count
-- print/mail count
-- run status
+Provides file-level processing metrics and operational audit information.
 
 ### PDF Detail Log
 
-Location:
-
-`logs/pdf_detail.csv`
-
-One row is written per PDF generation attempt.
-
-Tracks:
-- source file
-- location
-- agreement ID
-- account number
-- customer name
-- PDF output path
-- status
+Provides record-level PDF generation tracking.
 
 ### Exception Log
 
-Location:
-
-`logs/exception_log.csv`
-
-Used to capture processing failures while allowing the overall run to continue.
-
-Current exception categories:
-- API enrichment failures
-- record validation failures
-- PDF generation failures
-
-Future exception categories:
-- email draft failures
-- attachment failures
-- SharePoint integration failures
+Provides record-level error tracking while allowing processing to continue.
 
 ### Email Queue Log
 
-Location:
-
-`logs/email_queue.csv`
-
-Generated after successful PDF creation.
-
-Tracks:
-- recipient email address
-- email subject
-- email body
-- attachment path
-- delivery method
-- status
-
-Delivery methods:
-- EMAIL
-- PRINT_MAIL
-
-Statuses:
-- READY
-- MISSING_EMAIL
+Provides staging data for future email automation workflows.
 
 ---
 
 ## Microsoft Graph Architecture
 
-The email automation feature uses Microsoft Graph and Microsoft Entra ID.
+The email automation feature uses Microsoft Graph and Microsoft Entra ID to support future Outlook draft creation and shared mailbox workflows.
 
 ### Current Status
 
@@ -388,10 +401,11 @@ Completed:
 - Interactive Authentication
 - Token Caching
 - Shared Mailbox Access Validation
+- Draft Creation Validation
 
 ### Shared Mailbox
 
-Current mailbox:
+Current Mailbox:
 
 `renewals@an.summersphc.com`
 
@@ -407,7 +421,11 @@ A local cache file is stored as:
 
 `.graph_token_cache.bin`
 
-The cache file is excluded from Git an should never be committed.
+The file is excluded from Git and should never be committed.
+
+Token caching allows the application to reuse valid Microsoft Graph access tokens between runs, reducing repeated browser sign-ins during development.
+
+If the token expires, is invalidated, or the cache file is deleted, the application will prompt for authentication again.
 
 ### Current Graph Capabilities
 
@@ -415,8 +433,8 @@ The application can currently:
 
 - authenticate to Microsoft Graph
 - reuse cached authentication tokens
-- access the renewal shared mailbox
-- create draft messages in the shred mailbox
+- access the renewals shared mailbox
+- create draft messages in the shared mailbox
 
 ### Planned Graph Capabilities
 
@@ -494,7 +512,7 @@ Potential future migration:
 
 - incoming files stored in SharePoint
 - processed files archived in SharePoint
-- generated PDfs stored in SharePoint
+- generated PDFs stored in SharePoint
 - logs stored in SharePoint
 
 ### Internal Web Application

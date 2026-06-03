@@ -13,6 +13,9 @@ The tool currently:
 - Automatically archives processed CSV files
 - Creates an email queue for review/future email automation
 - Flags records without email addresses for print/mail handling
+- Authenticates with Microsoft Graph
+- Accesses the renewals shared mailbox
+- Creates Outlook draft messages for testing and validation
 
 The tool does not yet:
 - Send emails
@@ -362,24 +365,13 @@ Examples:
 
 ## Email Automation Status
 
-The system currently prepares email queue records but does not actually send customer emails.
+The system currently prepares email queue records and supports Outlook draft creation using Microsoft Graph.
 
-Development work is currently underway to support:
+Future development will add:
 
-- Outlook draft creation
 - PDF attachments
-- Shared mailbox workflows
-
-Current shared mailbox:
-
-`renewals@an.summersphc.com`
-
-Current draft creation capabilities include:
-
-- Microsoft Graph authentication
-- Shared mailbox access
-- Draft message creation
-- PDF attachment development (in progress)
+- Automated drraft generation from email queue records
+- Shared mailbox review workflows
 
 
 ## Processed File Archiving
