@@ -134,6 +134,8 @@ def main():
         if args.dry_run:
             pdf_count = 0
             pdf_error_count = 0
+            email_ready_count = 0
+            print_mail_count = 0
             status = "DRY_RUN"
 
             print_file_summary(
@@ -145,6 +147,8 @@ def main():
                 pdf_count=pdf_count,
                 pdf_error_count=pdf_error_count,
                 status=status,
+                email_ready_count=email_ready_count,
+                print_mail_count=print_mail_count,
             )
 
             write_run_summary(
@@ -158,6 +162,8 @@ def main():
                 api_enrichment_failures=api_error_count,
                 pdf_generation_failures=pdf_error_count,
                 status=status,
+                email_ready_count=email_ready_count,
+                print_mail_count=print_mail_count,
             )
 
             continue

@@ -203,6 +203,7 @@ def write_email_queue(
             "email": record.get("email"),
             "subject": subject,
             "body": body,
+            "pdf_path": str(pdf_path),
             "delivery_method": delivery_method,
             "status": status,
         })

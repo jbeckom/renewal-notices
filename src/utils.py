@@ -22,7 +22,6 @@ REQUIRED_COLUMNS = [
     "SCA End Date",
     "Title",
     "Total Annual Fee",
-    "Customer Email"
 ]
 
 

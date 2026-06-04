@@ -69,7 +69,7 @@ def create_draft_from_queue_record(record: dict) -> dict:
 
     return {
         "status": "DRAFT_CREATED",
-        "agreement_id": record.get("agreeement_id"),
+        "agreement_id": record.get("agreement_id"),
         "account_number": record.get("account_number"),
         "customer_name": record.get("customer_name"),
         "recipient": recipient,

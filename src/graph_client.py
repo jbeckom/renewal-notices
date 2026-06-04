@@ -81,6 +81,14 @@ def graph_get(endpoint: str) -> dict:
 
 
 def graph_post(endpoint: str, payload: dict) -> dict:
+    forbidden_send_endpoints = [
+        "/sendMail",
+        "/send"
+    ]
+
+    if any(blocked in endpoint for blocked in forbidden_send_endpoints):
+        raise RuntimeError(f"Blocked unsafe Graph send endpoint: {endpoint}")
+
     token = get_access_token()
 
     response = requests.post(
@@ -194,19 +202,3 @@ def create_shared_mailbox_draft_with_attachment (
         "draft": draft,
         "attachment": attachment,
     }
-
-
-if __name__ == "__main__":
-
-    mailbox = os.getenv("GRAPH_SHARED_MAILBOX")
-
-    result = create_shared_mailbox_draft_with_attachment(
-        mailbox=mailbox,
-        to_email="jbeckom@gmail.com",
-        subject="Test renewal draft with attachment",
-        body="This is a test draft with a PDF attachment.",
-        file_path="output/2606/mu/2606-renewal-mu-6513-sue-davis.pdf"
-    )
-
-    print("Draft created:", result["draft"]["id"])
-    print("Attachment added:", result["attacment"].get("name"))
