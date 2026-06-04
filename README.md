@@ -14,7 +14,9 @@ Automates the generation of branded renewal notice PDFs for Summers Plumbing Hea
 - Email queue generation
 - Microsoft Graph authentication
 - Shared mailbox integration
-- Outlook draft creation (development)
+- Batch Outlook draft generation
+- PDF attachment support for draft messages
+- Email draft logging
 
 
 ## Requirements
@@ -59,6 +61,9 @@ Current development capabilities:
 - Microsoft Graph authentication
 - Shared mailbox access
 - Outlook draft creation
+- PDF attachment support
+- Batch draft generation from email queue records
+- Email draft logging
 
 Email delivery automation is currently under development.
 

@@ -386,6 +386,10 @@ Provides record-level error tracking while allowing processing to continue.
 
 Provides staging data for future email automation workflows.
 
+### Email Draft Log
+
+Provides record-level tracking for Outlook draft creation attempts.
+
 ---
 
 ## Microsoft Graph Architecture
@@ -435,6 +439,10 @@ The application can currently:
 - reuse cached authentication tokens
 - access the renewals shared mailbox
 - create draft messages in the shared mailbox
+- create Outlook drafts from email queue records
+- attach renewal PDFs to draft messages
+- log draft creation results
+- process batch draft generation for all `EMAIL / READY` records
 
 ### Planned Graph Capabilities
 

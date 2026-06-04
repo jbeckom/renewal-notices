@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import config as cfg
+from logger import write_email_draft_log
 from graph_client import create_shared_mailbox_draft_with_attachment
 
 load_dotenv()
@@ -79,6 +80,25 @@ def create_draft_from_queue_record(record: dict) -> dict:
     }
 
 
+def process_queue_record(record: dict) -> dict:
+    try:
+        result = create_draft_from_queue_record(record)
+
+    except Exception as e:
+        result = {
+            "status": "DRAFT_FAILED",
+            "agreement_id": record.get("agreement_id"),
+            "account_number": record.get("account_number"),
+            "customer_name": record.get("customer_name"),
+            "recipient": record.get("email"),
+            "draft_id": "",
+            "attachment_name": "",
+            "error": str(e),
+        }
+
+    return result
+
+
 if __name__ == "__main__":
     queue_records = load_email_queue(cfg.EMAIL_QUEUE_LOG)
     ready_records = get_ready_email_records(queue_records)
@@ -89,7 +109,30 @@ if __name__ == "__main__":
         print("No EMAIL / READY records found.")
         raise SystemExit
     
-    result = create_draft_from_queue_record(ready_records[0])
+    # Safely limit for first batch test
+    # ready_records = ready_records[:5]
 
-    print("Draft creation result:")
-    print(result)
+    draft_created_count = 0
+    draft_failed_count = 0
+    
+    for record in ready_records:
+        result = process_queue_record(record)
+
+        write_email_draft_log(
+            log_path=cfg.EMAIL_DRAFT_LOG,
+            result=result
+        )
+
+        if result["status"] == "DRAFT_CREATED":
+            draft_created_count += 1
+        else:
+            draft_failed_count += 1
+
+        print(result)
+
+    print()
+    print("Draft Processing Complete")
+    print("-------------------------")
+    print(f"Drafts Created: {draft_created_count}")
+    print(f"Drafts Failed: {draft_failed_count}")
+    print(f"Total Records: {len(ready_records)}")

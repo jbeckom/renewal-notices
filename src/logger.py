@@ -55,6 +55,18 @@ EMAIL_QUEUE_COLUMNS = [
     "status",
 ]
 
+EMAIL_DRAFT_LOG_COLUMNS = [
+    "run_timestamp",
+    "agreement_id",
+    "account_number",
+    "customer_name",
+    "recipient",
+    "draft_id",
+    "attachment_name",
+    "status",
+    "error",
+]
+
 
 def write_run_summary(
         log_path: Path,
@@ -206,4 +218,37 @@ def write_email_queue(
             "pdf_path": str(pdf_path),
             "delivery_method": delivery_method,
             "status": status,
+        })
+
+
+def write_email_draft_log(
+        log_path: Path,
+        result: dict,
+) -> None:
+    """
+    Append one row to the email draft log.
+    """
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_exists = log_path.exists()
+
+    with log_path.open(mode="a", newline="", encoding="utf-8") as log_file:
+        writer = csv.DictWriter(
+            log_file,
+            fieldnames=EMAIL_DRAFT_LOG_COLUMNS,
+        )
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            "run_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "agreement_id": result.get("agreement_id"),
+            "account_number": result.get("account_number"),
+            "customer_name": result.get("customer_name"),
+            "recipient": result.get("recipient"),
+            "draft_id": result.get("draft_id"),
+            "attachment_name": result.get("attachment_name"),
+            "status": result.get("status"),
+            "error": result.get("error"),
         })

@@ -369,15 +369,35 @@ Examples:
 
 The system currently prepares email queue records and supports Outlook draft creation using Microsoft Graph.
 
-The system can currenly create a single Outlook draft from an `EMAIL / READY` email queue record and attach the matching renewal PDF.
+The application can process all `EMAIL / READY` queue records and create Outlook drafts in the renewals shared mailbox with the matching renewal PDF attached.
 
-Draft creation is intentionally limited to one queue record during validation.  Batch draft creation will be added after draft logging is implemented.
+Each draft creation attempt is recorded in:
 
-Future development will add:
+`logs/email_draft_log.csv`
 
-- PDF attachments
-- Automated drraft generation from email queue records
-- Shared mailbox review workflows
+The system still does not send customer emails automatically.  Drafts must be reviewed and sent manually.
+
+
+## Email Draft Log
+
+Each Outlook draft creation attempt is recorded in:
+
+`logs/email_draft_log.csv`
+
+The log includes:
+- run timestamp
+- agreement ID
+- account number
+- customer name
+- recipient
+- draft ID
+- attachment name
+- status
+- error
+
+Possibl status values include:
+- `DRAFT_CREATED`
+- `DRAFT_FAILED`
 
 
 ## Processed File Archiving

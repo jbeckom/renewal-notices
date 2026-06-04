@@ -88,3 +88,5 @@ REQUIRED_RECORD_FIELDS = [
 EMAIL_SUBJECT = (
     "Action Required: Your Safety & Comfort Membership Renewal is enclosed"
 )
+
+EMAIL_DRAFT_LOG = LOGS_DIR / "email_draft_log.csv"
