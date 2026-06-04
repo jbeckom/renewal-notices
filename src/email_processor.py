@@ -103,6 +103,11 @@ if __name__ == "__main__":
     queue_records = load_email_queue(cfg.EMAIL_QUEUE_LOG)
     ready_records = get_ready_email_records(queue_records)
 
+    print_mail_records = [
+        record for record in queue_records
+        if record.get("delivery_method") == "PRINT_MAIL"
+    ]
+
     print(f"Ready email records found: {len(ready_records)}")
 
     if not ready_records:
@@ -133,6 +138,18 @@ if __name__ == "__main__":
     print()
     print("Draft Processing Complete")
     print("-------------------------")
+    print(f"Queue Records Loaded: {len(queue_records)}")
+    print(f"EMAIL / READY Records: {len(ready_records)}")
     print(f"Drafts Created: {draft_created_count}")
     print(f"Drafts Failed: {draft_failed_count}")
-    print(f"Total Records: {len(ready_records)}")
+    print(f"Print/Mail Records: {len(print_mail_records)}")
+
+    print()
+    print("Review Checklist")
+    print("----------------")
+    print("1. Confirm draft count mathces Drafts Created.")
+    print("2. Spot-check 5-10 drafts in the renewal shared mailbox.")
+    print("3. Confirm attachments open correctly.")
+    print("4. Confirm no drafts were created for PRINT_MAIL records.")
+    print("5. Review logs/email_draft_log.csv for failures.")
+

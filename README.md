@@ -22,6 +22,11 @@ Automates the generation of branded renewal notice PDFs for Summers Plumbing Hea
 - PDF attachment support
 - Batch draft creation
 - Email draft logging
+- HTML email template rendering
+- Batch Outlook draft generation
+- Email draft logging
+- Draft processing summaries
+- Draft review workflow
 
 
 ## Requirements

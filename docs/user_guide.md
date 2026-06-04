@@ -463,3 +463,16 @@ Future improvements include:
 - Outlook email automation
 - SharePoint integration
 - Cloud-based processing
+
+
+## Draft Review Workflow
+
+After a batch draft generation completes:
+
+1. Confirm the number of drafts created matches the summary output.
+2. Review `logs/email_draft_log.csv` for any failures.
+3. Spot-check several drafts in the renewal shared mailbox.
+4. Verify recipients, renewal details, and PDF attachments.
+5. Confirm no `PRINT_MAIL` records were drafted.
+
+The draft review process is currently used as a validation step while email automation is being finalized.
