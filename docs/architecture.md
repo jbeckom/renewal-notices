@@ -188,12 +188,26 @@ Responsible for preparing email queue content.
 Responsibilities:
 - build email subject/body values
 - generate personalized greetings
+- render HTML email templates
+- substitute customer, agreement, and company placeholders
 - use first-name greeting logic
 - use company contact first name from `Attn:` lines
 - apply proper-case formatting to greeting names
 - determine delivery method:
     - `EMAIL`
     - `PRINT_MAIL`
+
+#### HTML Email Templates
+
+Customer-facing renewal emails are generated using an external HTML template.
+
+Template Location:
+
+`templates/renewal_email.html`
+
+The template is loaded at runtime and populated with customer, renewal, and company information using the email builder module.
+
+Separating presentation from application logic allows email content updates without modifying Python source code.
 
 ### `graph_client.py`
 
@@ -443,6 +457,7 @@ The application can currently:
 - attach renewal PDFs to draft messages
 - log draft creation results
 - process batch draft generation for all `EMAIL / READY` records
+- generate HTML-formatted Outlook drafts 
 
 ### Planned Graph Capabilities
 
@@ -508,11 +523,12 @@ Tags provide stable rollback points and historical reference markers.
 - attach renewal PDFs
 - log draft creation results
 
-### HTML Email Templates
+### Draft Review Workflow
 
-- branded email layout
-- richer formatting
-- improved customer experience
+- review generated Outlook drafts
+- verify recipients and attachments
+- validate renewal content before sending
+- establish production operating procedures
 
 ### SharePoint Integration
 

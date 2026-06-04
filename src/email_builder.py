@@ -27,6 +27,45 @@ def build_email_body(record: dict, company_info: dict) -> str:
     )
 
 
+def load_email_template() -> str:
+    return cfg.RENEWAL_EMAIL_TEMPLATE.read_text(encoding="utf-8")
+
+
+def render_template(template: str, values: dict) -> str:
+    for key, value in values.items():
+        template = template.replace(f"{{{{ {key} }}}}", str(value or ""))
+    return template
+
+
+def get_company_email_values(record: dict) -> dict:
+    location = record.get("location")
+    company_info = cfg.COMPANY_INFO.get(location, {})
+    location_string = cfg.LOCATION_NAMES.get(location).lower()
+
+    return {
+        "company_name": company_info.get("display_name", "Summers Plumbing Heating & Cooling"),
+        "company_phone": company_info.get("phone", ""),
+        "company_website": company_info.get("website", ""),
+        "location_url": company_info.get("location_url", "")
+    }
+
+
+def build_email_body_html(record: dict) -> str:
+    template = load_email_template()
+
+    values = {
+        "greeting_name": get_email_greeting_name(record),
+        "agreement_id": record.get("agreement_id", ""),
+        "expiration_date": record.get("expiration_date", ""),
+        "total_price": record.get("total_price", ""),
+    }
+
+    values.update(get_company_email_values(record))
+
+    return render_template(template, values)
+
+
+
 def build_email_queue_values(record: dict, pdf_path, company_info:dict) -> dict:
     """
     Determine email queue values for one renewal record.
@@ -43,7 +82,7 @@ def build_email_queue_values(record: dict, pdf_path, company_info:dict) -> dict:
 
     return {
         "subject": cfg.EMAIL_SUBJECT,
-        "body": build_email_body(record, company_info),
+        "body": build_email_body_html(record),
         "delivery_method": delivery_method,
         "status": status
     }

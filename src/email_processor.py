@@ -110,7 +110,7 @@ if __name__ == "__main__":
         raise SystemExit
     
     # Safely limit for first batch test
-    # ready_records = ready_records[:5]
+    ready_records = ready_records[:5]
 
     draft_created_count = 0
     draft_failed_count = 0

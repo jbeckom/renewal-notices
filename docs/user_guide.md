@@ -367,15 +367,13 @@ Examples:
 
 ## Email Automation Status
 
-The system currently prepares email queue records and supports Outlook draft creation using Microsoft Graph.
+Renewal emails are generated from an HTML template stored in:
 
-The application can process all `EMAIL / READY` queue records and create Outlook drafts in the renewals shared mailbox with the matching renewal PDF attached.
+`templates/renewal_email.html`
 
-Each draft creation attempt is recorded in:
+The template supports dynamic placeholders for customer, agreement, renewal, and company information.
 
-`logs/email_draft_log.csv`
-
-The system still does not send customer emails automatically.  Drafts must be reviewed and sent manually.
+Generated emails are created as Outlook drafts and are not automaticall sent.
 
 
 ## Email Draft Log

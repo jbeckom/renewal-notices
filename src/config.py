@@ -26,13 +26,15 @@ COMPANY_INFO = {
         "name": "Summers Plumbing Heating & Cooling",
         "address": "3423 Columbus Ave, Anderson, IN 46013",
         "phone": "765.644.4328",
-        "website": "www.summersphc.com"
+        "website": "www.summersphc.com",
+        "location_url": "anderson"
     },
     "MU": {
         "name": "Summers Plumbing Heating & Cooling",
         "address": "3700 S Hoyt Ave, Muncie, IN 47302",
         "phone": "765.399.4328",
-        "website": "www.summersphc.com"
+        "website": "www.summersphc.com",
+        "location_url": "muncie"
     }
 }
 
@@ -90,3 +92,4 @@ EMAIL_SUBJECT = (
 )
 
 EMAIL_DRAFT_LOG = LOGS_DIR / "email_draft_log.csv"
+RENEWAL_EMAIL_TEMPLATE = TEMPLATES_DIR / "renewal_email.html"

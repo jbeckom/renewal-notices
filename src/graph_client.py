@@ -118,7 +118,7 @@ def create_shared_mailbox_draft(
     payload = {
         "subject": subject,
         "body": {
-            "contentType": "Text",
+            "contentType": "HTML",
             "content": body,
         },
         "toRecipients": [
