@@ -247,10 +247,11 @@ Current remittance features include:
 - Service address
 - Amount due
 - Payment method selection
-- Check payment information
-- Driver's license verification fields
-- Credit card entry fields
 - Payable-to information
+- Location-specific mailing address
+- Credit card entry fields
+
+The driver's license/check verification fields were removed after operational feedback indicated they were rarely used.
 
 
 ## Run Summary Log

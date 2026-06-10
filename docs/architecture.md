@@ -164,6 +164,7 @@ Responsible for rendering renewal notice PDFs.
 Responsibilities:
 - generate branded PDF renewal notices
 - render company logo/contact information
+- render location-specific remittance mailing section
 - render mailing and service address sections
 - render renewal/payment details
 - render detachable remittance section
