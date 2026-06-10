@@ -84,7 +84,7 @@ Future fix:
 ## Notice Window Processing
 
 Status:
-Open
+Closed
 
 Priority:
 High

@@ -477,3 +477,47 @@ After a batch draft generation completes:
 5. Confirm no `PRINT_MAIL` records were drafted.
 
 The draft review process is currently used as a validation step while email automation is being finalized.
+
+
+## Notice Window Processing
+
+Renewal notices are classified based on the relationship between the current processing month and the agreement expiration month.
+
+| Months Until Expiration | Notice Window |
+|-------------------------|---------------|
+| 1 Month | 30_DAY |
+| 2 Months | 60_DAY |
+| 3 Months | 90_DAY |
+
+Examples:
+
+If processed in June:
+
+- July renewals = 30_DAY
+- August renewals = 60_DAY
+- September renewals = 90_DAY
+
+
+## Delivery Actions
+
+The system determines how each renewal notice should be delivered.
+
+| Notice Window | Email Available | Delivery Action |
+|---------------|-----------------|-----------------|
+| 30_DAY | Yes | EMAIL_AND_PRINT |
+| 30_DAY | No | PRINT_MAIL |
+| 60_DAY | Yes | EMIAL_ONLY |
+| 60_DAY | No | PRINT_MAIL |
+| 90_DAY | Yes | EMAIL_ONLY |
+| 90_DAY | No | PRINT_MAIL |
+
+
+## Print Queue
+
+Records requiring physical mailing are written to:
+
+`logs/print_queue.csv`
+
+This queue is used to identify renewal notices requiring printing and mailing.
+
+A record may appear in both the email queue and print queue when the delivery action is EMAIL_AND_PRINT.

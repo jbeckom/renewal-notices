@@ -67,6 +67,19 @@ EMAIL_DRAFT_LOG_COLUMNS = [
     "error",
 ]
 
+PRINT_QUEUE_COLUMNS = [
+    "run_timestamp",
+    "source_file",
+    "location",
+    "notice_window",
+    "delivery_action",
+    "agreement_id",
+    "account_number",
+    "customer_name",
+    "email",
+    "pdf_path",
+]
+
 
 def write_run_summary(
         log_path: Path,
@@ -251,4 +264,42 @@ def write_email_draft_log(
             "attachment_name": result.get("attachment_name"),
             "status": result.get("status"),
             "error": result.get("error"),
+        })
+
+
+def write_print_queue(
+        log_path: Path,
+        source_file: str,
+        record: dict,
+        pdf_path: Path,
+        notice_window: str,
+        delivery_action: str,
+) -> None:
+    """
+    Append one print queue row.
+    """
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    file_exists = log_path.exists()
+
+    with log_path.open(mode="a", newline="", encoding="utf-8") as log_file:
+        writer = csv.DictWriter(
+            log_file,
+            fieldnames=PRINT_QUEUE_COLUMNS,
+        )
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow({
+            "run_timestamp": datetime.now().isoformat(timespec="seconds"),
+            "source_file": source_file,
+            "location": record.get("location"),
+            "notice_window": notice_window,
+            "delivery_action": delivery_action,
+            "agreement_id": record.get("agreement_id"),
+            "account_number": record.get("account_number"),
+            "customer_name": record.get("customer_name", "").replace("\n", " | "),
+            "email": record.get("email"),
+            "pdf_path": str(pdf_path),
         })

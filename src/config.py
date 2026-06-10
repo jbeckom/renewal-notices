@@ -58,6 +58,7 @@ RUN_SUMMARY_LOG = LOGS_DIR / "run_summary.csv"
 PDF_DETAIL_LOG = LOGS_DIR / "pdf_detail.csv"
 EXCEPTION_LOG = LOGS_DIR / "exception_log.csv"
 EMAIL_QUEUE_LOG = LOGS_DIR / "email_queue.csv"
+PRINT_QUEUE_LOG = LOGS_DIR / "print_queue.csv"
 
 
 # --------------------------------------------------

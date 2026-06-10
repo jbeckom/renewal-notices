@@ -141,6 +141,27 @@ Responsibilities:
 - print runtime summaries
 - archive processed files
 - log processing exceptions
+- determine notice window classification
+- determine delivery action
+- write email queue records
+- wirte print queue records
+
+#### Queue Routing
+
+After successful PDF generation, each renewal notice is routed based on notice window and email availability.
+
+Supported delivery actions:
+
+- `EMAIL_ONLY`
+- `PRINT_MAIL`
+- `EMAIL_AND_PRINT`
+
+Routing behavior:
+
+- `EMAIL_ONLY` → `email_queue.csv`
+- `PRINT_MAIL` → `print_queue.csv`
+- `EMAIL_AND_PRINT` → `email_queue.csv` and `print_queue.csv`
+
 
 ### `utils.py`
 
@@ -156,6 +177,27 @@ Responsibilities:
 - build PDF filenames
 - build output directories
 - validate renewal records
+
+#### Notice Window Processing
+
+The system classifies renewal notices by comparing the agreement expiration month to the processing month.
+
+Supported notice windows:
+
+- `30_DAY`
+- `60_DAY`
+- `90_DAY`
+
+Examples:
+
+If processed in June:
+
+- July renewals → `30_DAY`
+- August renewals → `60_DAY`
+- September renewals → `90_DAY`
+
+Notice windows are used to determine delivery actions and queue routing.
+
 
 ### `pdf_generator.py`
 

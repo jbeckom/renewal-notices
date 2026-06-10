@@ -27,6 +27,9 @@ Automates the generation of branded renewal notice PDFs for Summers Plumbing Hea
 - Email draft logging
 - Draft processing summaries
 - Draft review workflow
+- Notice window processing (30/60/90 day renewals)
+- Print queue generation
+- Support for email-only, print-only, and email-and-print delivery workflows
 
 
 ## Requirements
