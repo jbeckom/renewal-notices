@@ -385,6 +385,22 @@ The template supports dynamic placeholders for customer, agreement, renewal, and
 
 Generated emails are created as Outlook drafts and are not automaticall sent.
 
+### Draft Processing Limits
+
+During testing, draft creation can be limited to a specific number of queue records.
+
+Example:
+
+`python src/email_processor.py --limit 5`
+
+This processes only the first five eligible `EMAIL / READY` records.
+
+If no limit is specified:
+
+`python src/email_processor.py`
+
+all eligible `EMAIL / READY` records will be processed.
+
 
 ## Email Draft Log
 

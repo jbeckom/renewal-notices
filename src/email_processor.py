@@ -1,8 +1,9 @@
 import csv
 import os
+import argparse
+import config as cfg
 from pathlib import Path
 from dotenv import load_dotenv
-import config as cfg
 from logger import write_email_draft_log
 from graph_client import create_shared_mailbox_draft_with_attachment
 
@@ -31,6 +32,25 @@ def get_ready_email_records(queue_records: list[dict]) -> list[dict]:
         if record.get("delivery_method") == "EMAIL"
         and record.get("status") == "READY"
     ]
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for email draft processing.
+    """
+
+    parser = argparse.ArgumentParser(
+        description="Create Outlook drafts from the renewal email queue."
+    )
+
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Maximum number of EMAIL / READY records to process."
+    )
+
+    return parser.parse_args()
 
 
 def create_draft_from_queue_record(record: dict) -> dict:
@@ -102,6 +122,7 @@ def process_queue_record(record: dict) -> dict:
 
 
 if __name__ == "__main__":
+    args = parse_args()
     queue_records = load_email_queue(cfg.EMAIL_QUEUE_LOG)
     ready_records = get_ready_email_records(queue_records)
 
@@ -116,8 +137,13 @@ if __name__ == "__main__":
         print("No EMAIL / READY records found.")
         raise SystemExit
     
-    # Safely limit for first batch test
-    ready_records = ready_records[:5]
+    total_ready_records = len(ready_records)
+
+    if args.limit is not None:
+        if args.limit <= 0:
+            raise ValueError("--limit must be greater than zero.")
+        
+        ready_records = ready_records[:args.limit]
 
     draft_created_count = 0
     draft_failed_count = 0
@@ -141,7 +167,8 @@ if __name__ == "__main__":
     print("Draft Processing Complete")
     print("-------------------------")
     print(f"Queue Records Loaded: {len(queue_records)}")
-    print(f"EMAIL / READY Records: {len(ready_records)}")
+    print(f"EMAIL / READY Records Found: {total_ready_records}")
+    print(f"EMAIL / READY Records Processed: {len(ready_records)}")
     print(f"Drafts Created: {draft_created_count}")
     print(f"Drafts Failed: {draft_failed_count}")
     print(f"Print/Mail Records: {len(print_mail_records)}")

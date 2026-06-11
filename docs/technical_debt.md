@@ -55,6 +55,10 @@ Before Automated Sending
 Current Gap:
 The system currently creates drafts only and does not contain safeguards for automated sending.
 
+Completed Safeguards:
+- Draft generation requires explicit execution of `email_processor.py`
+- Optional processing limits are available using `--limit`
+
 Future Fix:
 - Separate draft creation from sending
 - Require explicit send command/flag
