@@ -296,11 +296,11 @@ def get_notice_window(expiration_date, run_date) -> str:
     Determine notice window based on expiration month relative to run month.
     """
 
-    month_delta = {
+    month_delta = (
         (expiration_date.year - run_date.year) * 12
         + expiration_date.month
-        -run_date.month
-    }
+        - run_date.month
+    )
 
     if month_delta == 1:
         return "30_DAY"

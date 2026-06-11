@@ -383,6 +383,10 @@ After a PDF is successfully created, an email queue row is generated in:
 
 The queue indicates whether the record is ready for email or should be printed/mailed.
 
+Each email queue record also retains the originating notice window (`90_DAY`, `60_DAY`, `30_DAY`).
+
+Notice-window information is preserved throughout the email workflow to support auditability and future duplicate-draft prevention.
+
 Delivery methods:
 - `EMAIL`
 - `PRINT_MAIL`

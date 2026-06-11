@@ -152,29 +152,6 @@ def generate_renewal_pdfs(records, file_path, location):
                 status="CREATED",
             )
 
-            # email_values = build_email_queue_values(
-            #     record,
-            #     renewal_pdf_path,
-            #     cfg.COMPANY_INFO[location],
-            # )
-
-            # if email_values["delivery_method"] == "EMAIL":
-            #     email_ready_count += 1
-
-            # if email_values["delivery_method"] == "PRINT_MAIL":
-            #     print_mail_count += 1
-
-            # write_email_queue(
-            #     log_path=cfg.EMAIL_QUEUE_LOG,
-            #     source_file=file_path.name,
-            #     record=record,
-            #     pdf_path=renewal_pdf_path,
-            #     subject=email_values["subject"],
-            #     body=email_values["body"],
-            #     delivery_method=email_values["delivery_method"],
-            #     status=email_values["status"]
-            # )
-
             notice_window = get_notice_window(
                 expiration_date=record["expiration_date_raw"],
                 run_date=record["run_date_raw"],
@@ -203,6 +180,7 @@ def generate_renewal_pdfs(records, file_path, location):
                     body=email_values["body"],
                     delivery_method="EMAIL",
                     status="READY",
+                    notice_window=notice_window,
                 )
 
             if delivery_action in ["PRINT_MAIL", "EMAIL_AND_PRINT"]:

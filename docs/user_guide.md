@@ -332,6 +332,7 @@ The email queue includes:
 - run timestamp
 - source CSV file
 - location
+- notice window
 - agreement ID
 - account number
 - customer name
@@ -341,6 +342,14 @@ The email queue includes:
 - PDF attachment path
 - delivery method
 - status
+
+Notice-window values identify which renewal cycle generated the queue record:
+
+- `90_DAY`
+- `60_DAY`
+- `30_DAY`
+
+This information is retained throughout draft creation and logging.
 
 Delivery method values include:
 - `EMAIL`

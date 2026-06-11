@@ -30,6 +30,7 @@ Automates the generation of branded renewal notice PDFs for Summers Plumbing Hea
 - Notice window processing (30/60/90 day renewals)
 - Print queue generation
 - Support for email-only, print-only, and email-and-print delivery workflows
+- Notice-window tacking throughout the email workflow (`90_DAY`, `60_DAY`, `30_DAY`)
 
 
 ## Requirements
@@ -112,4 +113,3 @@ The application will:
 3. Create processing logs
 4. Create email queue records
 5. Archive processed source files
-```

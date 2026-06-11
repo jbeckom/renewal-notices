@@ -36,7 +36,9 @@ Current risk:
 
 Future fix:
 - Check `email_draft_log.csv` before draft creation
-- Skip records already successfully drafted by agreement ID / recipient / PDF path
+- Use `agreement_id` + `notice_window` + `recipient` as the duplicate key
+- Support configurable lookback period
+- Skip records already successfully drafted
 
 
 ## Batch Send Guardrails
@@ -72,7 +74,7 @@ Target Milestone:
 Before July/August Renewal Run
 
 Current gap:
-`PRINT_MAIL` records exist in `email_queue.csv` but there is no dedicated print workflow for producing print-ready mailing batches.
+`PRINT_MAIL` are routed to `print_queue.csv`, but there is no dedicated print-processing workflow.
 
 Future fix:
 - Generate `print_queue.csv`

@@ -71,6 +71,7 @@ def create_draft_from_queue_record(record: dict) -> dict:
     return {
         "status": "DRAFT_CREATED",
         "agreement_id": record.get("agreement_id"),
+        "notice_window": record.get("notice_window"),
         "account_number": record.get("account_number"),
         "customer_name": record.get("customer_name"),
         "recipient": recipient,
@@ -88,6 +89,7 @@ def process_queue_record(record: dict) -> dict:
         result = {
             "status": "DRAFT_FAILED",
             "agreement_id": record.get("agreement_id"),
+            "notice_window": record.get("notice_window"),
             "account_number": record.get("account_number"),
             "customer_name": record.get("customer_name"),
             "recipient": record.get("email"),

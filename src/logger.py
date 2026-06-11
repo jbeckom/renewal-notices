@@ -44,6 +44,7 @@ EMAIL_QUEUE_COLUMNS = [
     "run_timestamp",
     "source_file",
     "location",
+    "notice_window",
     "agreement_id",
     "account_number",
     "customer_name",
@@ -58,6 +59,7 @@ EMAIL_QUEUE_COLUMNS = [
 EMAIL_DRAFT_LOG_COLUMNS = [
     "run_timestamp",
     "agreement_id",
+    "notice_window",
     "account_number",
     "customer_name",
     "recipient",
@@ -204,6 +206,7 @@ def write_email_queue(
         body: str,
         delivery_method: str,
         status: str,
+        notice_window: str,
 ) -> None:
     """
     Append one row to the email queue log.
@@ -222,6 +225,7 @@ def write_email_queue(
             "run_timestamp": datetime.now().isoformat(timespec="seconds"),
             "source_file": source_file,
             "location": record.get("location"),
+            "notice_window": notice_window,
             "agreement_id": record.get("agreement_id"),
             "account_number": record.get("account_number"),
             "customer_name": record.get("customer_name", "").replace("\n", " | "),
@@ -257,6 +261,7 @@ def write_email_draft_log(
         writer.writerow({
             "run_timestamp": datetime.now().isoformat(timespec="seconds"),
             "agreement_id": result.get("agreement_id"),
+            "notice_window": result.get("notice_window"),
             "account_number": result.get("account_number"),
             "customer_name": result.get("customer_name"),
             "recipient": result.get("recipient"),
