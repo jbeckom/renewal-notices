@@ -546,3 +546,37 @@ Records requiring physical mailing are written to:
 This queue is used to identify renewal notices requiring printing and mailing.
 
 A record may appear in both the email queue and print queue when the delivery action is EMAIL_AND_PRINT.
+
+
+## Print Batch Processing
+
+Print queue records can be converted into a single merged PDF for batch printing.
+
+Run:
+
+`python src/print_processor.py`
+
+This creates a timestamped folder in:
+
+`output/print_batches`
+
+Each batch folder contains:
+
+- `batch_print.pdf`
+- `print_manifest.csv`
+
+The `batch_print.pdf` file contains all selected renewal notices merged into one printable PDF.
+
+The `print_manifest.csv` file provides a reconciliation list for the batch.
+
+Optional filters:
+
+`python src/print_processor.py --location an`
+
+`python src/print_processor.py --notice-window 30_DAY`
+
+`python src/print_processor.py --limit 5`
+
+`python src/print_processor.py --dry-run`
+
+Use `--dry-run` to preview selected records without creating batch files.

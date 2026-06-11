@@ -69,7 +69,7 @@ Future Fix:
 ## Print Queue / Print Manifest
 
 Status:
-Open
+Closed
 
 Priority:
 High
@@ -77,14 +77,19 @@ High
 Target Milestone:
 Before July/August Renewal Run
 
-Current gap:
-`PRINT_MAIL` are routed to `print_queue.csv`, but there is no dedicated print-processing workflow.
+Resolved:
+- `PRINT_MAIL` and `EMAIL_AND_PRINT` records are routed to `print_queue.csv`
+- Print processor creates a merged `batch_print.pdf`
+- Print processor creates `print_manifest.csv`
+- Supports filtering by location
+- Supports filtering by notice window
+- Supports dry-run validation
+- Supports limited test batches
 
-Future fix:
-- Generate `print_queue.csv`
-- Support filtering by notice window
-- Support bulk printing of required PDFs
-- Generate mailing manifest
+Future Considerations:
+- Optional per-notice-window batch files
+- Optional print batch log
+- Optinoal processed/printed tracking
 
 
 ## Notice Window Processing

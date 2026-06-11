@@ -293,6 +293,7 @@ Responsibilities:
 - validation fields
 - email subject
 - shared runtime constants
+- print batch output paths
 
 ---
 
@@ -450,6 +451,14 @@ Provides staging data for future email automation workflows.
 ### Email Draft Log
 
 Provides record-level tracking for Outlook draft creation attempts.
+
+### Print Queue Log
+
+Provides record-level tracking for renewal notices requiring physical mailing.
+
+### Print Batch Manifest
+
+Provides a batch-level reconciliation file for merged print batches.
 
 ---
 

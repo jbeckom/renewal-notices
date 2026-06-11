@@ -12,6 +12,7 @@ LOGS_DIR = BASE_DIR / "logs"
 TEMPLATES_DIR = BASE_DIR / "templates"
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 LOGO_PATH = TEMPLATES_DIR / "SPHC-Logo-BlkText.jpg"
+PRINT_BATCHES_DIR = OUTPUT_DIR / "print_batches"
 
 
 CSV_HEADER_ROW = 1
