@@ -81,11 +81,16 @@ High-level flow:
 
 ## Processing Flow
 
+
+Location detection occurs before file processing begins
+
+Files that do not resolve to a supported location are excluded from the workflow and logged as exceptions.
+
 ```text
-FieldPulse Export CSV
+FieldPulse CSV
         │
         ▼
-CSV Validation
+Validation
         │
         ▼
 Record Building
@@ -96,16 +101,28 @@ FieldPulse API Enrichment
         ▼
 PDF Generation
         │
-        ├────────► PDF Detail Log
-        │
         ▼
-Email Queue Generation
+Delivery Routing
         │
-        ▼
-Run Summary Log
+        ├─ EMAIL_ONLY ───────► email_queue.csv
         │
-        ▼
-Archive Source File
+        ├─ PRINT_MAIL ───────► print_queue.csv
+        │
+        └─ EMAIL_AND_PRINT ─► both queues
+        │
+        ├───────────────┐
+        │               │
+        ▼               ▼
+email_queue.csv     print_queue.csv
+        │               │
+        ▼               ▼
+email_processor.py  print_processor.py
+        │               │
+        ▼               ▼
+Outlook Drafts     batch_print.pdf
+        │               │
+        ▼               ▼
+email_draft_log    print_manifest.csv
 ```
 
 ---

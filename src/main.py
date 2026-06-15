@@ -1,5 +1,5 @@
 import argparse
-from logger import write_run_summary
+from logger import write_run_summary, write_exception_log
 import config as cfg
 from utils import (
     detect_location,
@@ -81,6 +81,9 @@ def main():
             for file_path in csv_files:
                 location = detect_location(file_path)
 
+                if location == "UNKNOWN":
+                    continue
+
                 if location.lower() == args.location:
                     filtered_files.append(file_path)
 
@@ -100,6 +103,19 @@ def main():
         # Determine Anderson/Muncie location from the file name.
         location = detect_location(file_path)
         print(f"  Detected location: {location}")
+
+        if location == "UNKNOWN":
+            write_exception_log(
+                log_path=cfg.EXCEPTION_LOG,
+                source_file=file_path.name,
+                location=location,
+                stage="LOCATION_DETECTION",
+                record={},
+                error_message="Unable to determine location from filename.",
+            )
+
+            print(f"⛔️ Skipping file due to unknown location: {file_path.name}\n")
+            continue
 
         # Load the CSV into a DataFrame.
         # If the file cannot be read, skit it and continue

@@ -78,6 +78,25 @@ Example filenames:
 - `sca-renewals-an-2606.csv`
 - `sca-renewals-mu-2606.csv`
 
+### Location Detection
+
+The system determines locatio nfrom the source filename.
+
+Supported location identifiers:
+
+- an
+- mu
+
+If a valid location cannot be determined, the file is skipped and an exception log entry is created.
+
+Example:
+
+`sca-renewals-an-2607.csv` → Anderson
+
+`sca-renewals-mu-2607.csv` → Muncie
+
+`sca-renewals-test-2607.csv` → skipped
+
 
 ## File Validation
 Each CSV file is automatically validated before processing.
