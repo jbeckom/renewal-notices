@@ -3,21 +3,15 @@
 ## Draft Visibility Verification
 
 Status:
-Open
+Closed
 
 Priority:
-Medium
+Resolved
 
-Target Milestone:
-Before Automated Sending
+Resolution:
+Drafts were successfully created through Microsoft Graph and written to the correct shared mailbox.
 
-Current Issue: 
-Graph returned draft IDs and logs showed `DRAFT_CREATED`, but draft were not visible in Outlook.
-
-Future fix:
-- Add optional post-create Graph readback verification
-- Confirm created draft exists in expected shared mailbox
-- Log verification status
+The observed issue was determined to be an Outlook client synchronization problem rather than an application defect.
 
 
 ## Duplicate Draft Prevention
@@ -35,10 +29,11 @@ Current risk:
 - Running `email_processor.py` multiple times against the same queue can create duplicate drafts
 
 Future fix:
-- Check `email_draft_log.csv` before draft creation
+- Load recent `DRAFT_CREATED` rows from `email_draft_log.csv`
 - Use `agreement_id` + `notice_window` + `recipient` as the duplicate key
-- Support configurable lookback period
-- Skip records already successfully drafted
+- Limit duplicate scan to a configuratble lookback window
+- Skip records already successfully drafted within the lookback period
+- Report skipped duplicate count in the terminal summary
 
 
 ## Batch Send Guardrails
@@ -60,9 +55,13 @@ Completed Safeguards:
 - Optional processing limits are available using `--limit`
 
 Future Fix:
-- Separate draft creation from sending
-- Require explicit send command/flag
-- Maintain send log
+- Keep draft creation and sending as separate commands
+- Require an explicit send command or flag
+- Require pre-send validation before any message is sent
+- Require duplicate prevention before sending
+- Require draft visibility/readback verification before sending
+- Maintain a dedicated send log
+- Log message ID, recipient, agreement ID, notice window, status, and error
 - Block accidental sends from normal processing
 
 
@@ -89,7 +88,7 @@ Resolved:
 Future Considerations:
 - Optional per-notice-window batch files
 - Optional print batch log
-- Optinoal processed/printed tracking
+- Optional processed/printed tracking
 
 
 ## Notice Window Processing
@@ -103,10 +102,7 @@ High
 Target Milestone:
 Before July/August Renewal Run
 
-Current Gap:
-The system does not distinguish between 30-day and 60-day renewal notice processing rules.
-
-Future Fix:
+Resolved:
 - Identify notice window
 - Support EMAIL_ONLY
 - Support PRINT_MAIL

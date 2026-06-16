@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The Renewal Notice Automation project generates branded renewal notice PDFs from FieldPulse renewal exports and prepares future email automation workflows.
+The Renewal Notice Automation project generates branded renewal notice PDFs from FieldPulse renewal exports, creates Outlook renewal draft emails, and prepares renewal notices for physical mailing when required.
 
 The system is designed to support:
 - monthly renewal CSV processing
@@ -10,8 +10,10 @@ The system is designed to support:
 - FieldPulse API enrichment
 - branded PDF generation
 - structured logging
-- email queue preparation
-- future Outlook draft creation through Microsoft Graph
+- email queue generation
+- Outlook draft creation through Microsoft Graph
+- print queue generation
+- print batch generation
 - future SharePoint/cloud/web app workflows
 
 ---
@@ -73,9 +75,11 @@ High-level flow:
 3. Normalize source data into renewal records
 4. Enrich records with FieldPulse billing address overrides
 5. Generate branded renewal notice PDFs
-6. Create email queue records
-7. Write processing logs
-8. Archive processed CSV files to `data/processed`
+6. Route records by delivery action
+7. Create email queue records
+8. Create print queue records
+9. Write processing logs
+10. Archive processed CSV files
 
 ---
 
@@ -161,7 +165,7 @@ Responsibilities:
 - determine notice window classification
 - determine delivery action
 - write email queue records
-- wirte print queue records
+- write print queue records
 
 #### Queue Routing
 
@@ -278,13 +282,9 @@ Current responsibilities:
 - cache authentication tokens locally
 - call Graph API endpoints
 - validate shared mailbox access
-- create test draft messages in the shared mailbox
-
-Future responsibilities:
-- create renewal draft messages
+- create Outlook draft messages
 - attach generated renewal PDFs
-- process email queue records
-- log draft creation status
+- support email queue processing
 
 ### `logger.py`
 
@@ -295,6 +295,8 @@ Current logs:
 - `logs/pdf_detail.csv`
 - `logs/exception_log.csv`
 - `logs/email_queue.csv`
+- `logs/print_queue.csv`
+- `logs/email_draft_log.csv`
 
 ### `config.py`
 
@@ -413,7 +415,9 @@ Statuses:
 - `READY`
 - `MISSING_EMAIL`
 
-No emails are sent from the queue yet.
+No emails are sent from the queue directly.
+
+The queue is consumed by `email_processor.py`, which creates Outlook drafts for operator review prior to sending.
 
 ### Archiving
 
@@ -536,11 +540,10 @@ The application can currently:
 
 Future development will include:
 
-- draft creation from email queue records
-- PDF attachment support
-- email draft logging
-- optional draft review workflow
-- future email sending workflow
+- duplicate draft prevention
+- draft visibility verification
+- automated sending guardrails
+- optional automated sending workflow
 
 ---
 
@@ -589,12 +592,13 @@ Tags provide stable rollback points and historical reference markers.
 
 ## Future Architecture Roadmap
 
-### Email Draft Automation
+### Automated Email Sending
 
-- process EMAIL / READY queue records
-- create Outlook drafts automatically
-- attach renewal PDFs
-- log draft creation results
+- validate duplicate prevention safeguards
+- implement send logging
+- implement send verification
+- support controlled automated sending
+- maintain operator override capability
 
 ### Draft Review Workflow
 

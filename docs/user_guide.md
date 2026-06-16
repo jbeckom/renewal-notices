@@ -18,6 +18,9 @@ The tool currently:
 - Creates Outlook draft messages from email queue records
 - Attaches renewal notice PDFs to draft messages
 - Validates PDF attachment paths before draft creation
+- Generate merged print batches
+- Generate print manifests
+- Supports location validation and unknown-location detection
 
 The tool does not yet:
 - Send emails
@@ -36,34 +39,70 @@ Monthly processing requires:
 4. Review:
     - `logs/run_summary.csv`
     - `logs/exception_log.csv`
-    - `logs/email_queue.csv`
 
-5. Print/mail any records marked:
-    -  `PRINT_MAIL`
-    - `MISSING_EMAIL`
+5. Generate Outlook drafts:
 
-6. Verify PDFs were generated in the appropriate output folder:
-    - `output/{yymm}/{location}`
+    `python src/email_processor.py`
+
+6. Review draft creation results:
+
+    - `logs/email_draft_log.csv`
+
+7. Generate print batches:
+
+    `python src/print_processor.py`
+
+8. Verify outputs
+    - Outlook drafts
+    - `batch_print.pdf`
+    - `print_manifest.csv`
 
 
 ## Monthly Processing Procedure
 
 1. Export renewal file from FieldPulse.
-2. Save the CSV file to `data/incoming`
+
+2. Save the CSV file to: 
+    
+    `data/incoming`
+
 3. Open a terminal in the project folder.
+
 4. Run:
 
     `python src/main.py`
 
-5. Verify PDFs are generated.
-6. Review:
-    - run_summary.csv
-    - exception_log.csv
-    - email_queue.csv
-7. Print/mail any records marked:
-    - PRINT_MAIL
-    - MISSING_EMAIL
-8. Archive output files according to company policy.
+5. Review processing results:
+
+    - `logs/run_summary.csv`
+    - `logs/exception_log.csv`
+
+6. Verify renewal PDFs were generated in:
+
+    `output/{yymm}/{location}`
+
+7. Generate Outlook renewal drafts:
+
+    `python src/email_processor.py`
+
+8. Review draft creation results:
+
+    - `logs/email_draft_log.csv`
+
+9. Follow the Draft Review Workflow before sending any renewal emails.
+
+10. Generate print batches:
+
+    `python src/print_processor.py`
+
+11. Verify print outputs:
+
+    - `batch_print.pdf`
+    - `print_manifest.csv`
+
+12. Print and mail all notices included in the generated print batch.
+
+13. Archive generated output files according to company policy.
 
 
 ## Input Files
@@ -80,7 +119,7 @@ Example filenames:
 
 ### Location Detection
 
-The system determines locatio nfrom the source filename.
+The system determines location from the source filename.
 
 Supported location identifiers:
 
@@ -328,9 +367,10 @@ The log includes:
 - error message
 
 Current logged exception stages include:
-- 'API_ENRICHMENT'
-- 'RECORD_VALIDATION'
-- 'PDF_GENERATION'
+- `LOCATION_DETECTION`
+- `API_ENRICHMENT`
+- `RECORD_VALIDATION`
+- `PDF_GENERATION`
 
 If API enrichment fails for a record, the system continues processing and generates the renewal notice using the CSV-derived service address.
 
@@ -345,7 +385,11 @@ After a renewal PDF is successfully generated, the application creates an email 
 
 `logs/email_queue.csv`
 
-The email queue is a preparation/review file only. The application does not currently send emails or create Outlook drafts.
+The email queue is a staging file used by `email_processor.py`
+
+Queue records are converted into Outlook drafts for review prior to sending.
+
+The application does not currently send emails automatically.
 
 The email queue includes:
 - run timestamp
@@ -402,7 +446,7 @@ Renewal emails are generated from an HTML template stored in:
 
 The template supports dynamic placeholders for customer, agreement, renewal, and company information.
 
-Generated emails are created as Outlook drafts and are not automaticall sent.
+Generated emails are created as Outlook drafts and are not automatically sent.
 
 ### Draft Processing Limits
 
@@ -550,7 +594,7 @@ The system determines how each renewal notice should be delivered.
 |---------------|-----------------|-----------------|
 | 30_DAY | Yes | EMAIL_AND_PRINT |
 | 30_DAY | No | PRINT_MAIL |
-| 60_DAY | Yes | EMIAL_ONLY |
+| 60_DAY | Yes | EMAIL_ONLY |
 | 60_DAY | No | PRINT_MAIL |
 | 90_DAY | Yes | EMAIL_ONLY |
 | 90_DAY | No | PRINT_MAIL |

@@ -3,34 +3,21 @@ Automates the generation of branded renewal notice PDFs for Summers Plumbing Hea
 
 
 ## Features
-- CSV import and validation
-- Renewal record normalization
-- Branded PDF generation
-- FieldPulse API enrichment
-- Billing Address overrides
-- Structured CSV logging
-- Organized output directories
-- Automatic source file archiving
-- Email queue generation
-- Microsoft Graph authentication
-- Shared mailbox integration
-- Batch Outlook draft generation
-- PDF attachment support for draft messages
-- Email draft logging
-- HTML email template support
-- Outlook draft generation via Microsoft Graph
-- PDF attachment support
-- Batch draft creation
-- Email draft logging
-- HTML email template rendering
-- Batch Outlook draft generation
-- Email draft logging
-- Draft processing summaries
-- Draft review workflow
-- Notice window processing (30/60/90 day renewals)
-- Print queue generation
-- Support for email-only, print-only, and email-and-print delivery workflows
-- Notice-window tacking throughout the email workflow (`90_DAY`, `60_DAY`, `30_DAY`)
+- Validates FieldPulse renewal export files
+- Builds standardized renewal notice records
+- Enriches customer records using FIeldPulse API
+- Generates renewal notice PDFs
+- Supports billing-address overrides
+- Determines notice windows (`90_DAY`, `60_DAY`, `30_DAY`)
+- Routes records by delivery action:
+    - `EMAIL_ONLY`
+    - `PRINT_MAIL`
+    - `EMAIL_AND_PRINT`
+- Generates email and print queues
+- Creates Outlook draft emails via Microsoft Graph
+- Logs draft creation activity
+- Generates merged print batches and print manifests
+- Supports draft reveiew workflow prior to sending
 
 
 ## Requirements
@@ -62,24 +49,34 @@ Purpose:
 
 ## Current Status
 
-Current production capabilities:
+Completed:
 
-- CSV processing
-- FieldPulse API enrichment
 - PDF generation
-- Logging
+- FieldPulse API enrichment
+- Billing-address override handling
+- Notice-window processing
 - Email queue generation
-
-Current development capabilities:
-
-- Microsoft Graph authentication
-- Shared mailbox access
+- Print queue generation
 - Outlook draft creation
-- PDF attachment support
-- Batch draft generation from email queue records
-- Email draft logging
+- HTML email templates
+- Draft review workflow
+- Print batch processor
+- Print manifest generation
+- Unknown-location guardrails
 
-Email delivery automation is currently under development.
+In Progress:
+
+- Duplicate draft prevention
+- Draft visibility verification
+- Automated sending guardrails
+
+Future:
+
+- Automated email sending
+- SharePoint integration
+- Web UI
+- Cloud hosting
+
 
 ## Environment Variables
 Sensitive configuration values are stored in:
