@@ -1,10 +1,12 @@
-import csv
+
 import os
+import csv
 import argparse
 import config as cfg
 from pathlib import Path
 from dotenv import load_dotenv
 from logger import write_email_draft_log
+from datetime import datetime, timedelta
 from graph_client import create_shared_mailbox_draft_with_attachment
 
 load_dotenv()
@@ -121,10 +123,79 @@ def process_queue_record(record: dict) -> dict:
     return result
 
 
+def parse_log_timestamp(value: str) -> datetime | None:
+    """
+    Parse a draft log timestamp.
+
+    Returns None when the timestamp is missing or invalid.
+    """
+
+    if not value:
+        return None
+    
+    try:
+        return datetime.fromisoformat(value.strip())
+    except ValueError:
+        return None
+
+
+def get_draft_key(record: dict) -> tuple[str, str, str]:
+    """
+    Build the duplicate-prevention key for a queue or log record.
+    """    
+
+    return (
+        record.get("agreement_id", "").strip(),
+        record.get("notice_window", "").strip(),
+        record.get("recipient", record.get("email", "")).strip().lower(),
+    )
+
+
+def load_successful_draft_keys(
+        log_path: Path,
+        lookback_days: int,
+) -> set[tuple[str, str, str]]:
+    """
+    Load recent successful draft keys from the email draft log.
+    """
+
+    if not log_path.exists():
+        return set()
+    
+    cutoff = datetime.now() - timedelta(days=lookback_days)
+    draft_keys = set()
+
+    with log_path.open(mode="r", newline="", encoding="utf-8") as log_file:
+        reader = csv.DictReader(log_file)
+
+        for row in reader:
+            if row.get("status") != "DRAFT_CREATED":
+                continue
+
+            run_timestamp = parse_log_timestamp(row.get("run_timestamp", ""))
+
+            if run_timestamp is None:
+                continue
+
+            if run_timestamp < cutoff:
+                continue
+
+            draft_keys.add(get_draft_key(row))
+
+    return draft_keys
+
+
 if __name__ == "__main__":
     args = parse_args()
     queue_records = load_email_queue(cfg.EMAIL_QUEUE_LOG)
     ready_records = get_ready_email_records(queue_records)
+
+    successful_draft_keys = load_successful_draft_keys(
+        log_path=cfg.EMAIL_DRAFT_LOG,
+        lookback_days=cfg.DRAFT_DUPLICATE_LOOKBACK_DAYS,
+    )
+
+    draft_skipped_count = 0
 
     print_mail_records = [
         record for record in queue_records
@@ -149,6 +220,20 @@ if __name__ == "__main__":
     draft_failed_count = 0
     
     for record in ready_records:
+        draft_key = get_draft_key(record)
+
+        if draft_key in successful_draft_keys:
+            draft_skipped_count += 1
+
+            print(
+                "Skipping duplicate draft: "
+                f"{record.get('agreement_id')} | "
+                f"{record.get('notice_window')} | "
+                f"{record.get('email')}"
+            )
+
+            continue
+
         result = process_queue_record(record)
 
         write_email_draft_log(
@@ -158,6 +243,7 @@ if __name__ == "__main__":
 
         if result["status"] == "DRAFT_CREATED":
             draft_created_count += 1
+            successful_draft_keys.add(get_draft_key(record))
         else:
             draft_failed_count += 1
 
@@ -171,6 +257,7 @@ if __name__ == "__main__":
     print(f"EMAIL / READY Records Processed: {len(ready_records)}")
     print(f"Drafts Created: {draft_created_count}")
     print(f"Drafts Failed: {draft_failed_count}")
+    print(f"Drafts Skipped: {draft_skipped_count}")
     print(f"Print/Mail Records: {len(print_mail_records)}")
 
     print()

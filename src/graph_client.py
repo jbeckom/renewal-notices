@@ -202,3 +202,78 @@ def create_shared_mailbox_draft_with_attachment (
         "draft": draft,
         "attachment": attachment,
     }
+
+
+def graph_get_all(endpoint: str) -> list[dict]:
+    """
+    Retrieve all pages from Microsoft Graph collection endpoint.
+    """
+
+    token = get_access_token()
+
+    url = f"https://graph.microsoft.com/v1.0{endpoint}"
+    items = []
+
+    while url:
+        response = requests.get(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        data = response.json()
+        items.extend(data.get("value", []))
+
+        url = data.get("@odata.nextLink")
+
+    return items
+
+
+def get_or_create_mail_folder(
+        mailbox: str, 
+        folder_name: str, 
+) -> dict:
+    """
+    Return an existing root mail folder by display name,
+    or create it if it doesn't already exist.
+    """
+
+    folders = graph_get_all(
+        f"/users/{mailbox}/mailFolders"
+        "?$select=id,displayName"
+        "&$top=100"
+    )
+
+    for folder in folders:
+        if folder.get("displayName", "").strip().lower() == folder_name.lower():
+            return folder
+
+    return graph_post(
+        f"/users/{mailbox}/mailFolders",
+        {
+            "displayName": folder_name,
+            "isHidden": False,
+        },
+    )
+
+
+def move_message(
+        mailbox: str,
+        message_id: str,
+        destination_folder_id: str,
+) -> dict:
+    """
+    Move a message to another folder in the same mailbox.
+    """
+
+    return graph_post(
+        f"/users/{mailbox}/messages/{message_id}/move",
+        {
+            "destinationId": destination_folder_id,
+        },
+    )

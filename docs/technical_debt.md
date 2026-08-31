@@ -108,3 +108,37 @@ Resolved:
 - Support PRINT_MAIL
 - Support EMAIL_AND_PRINT
 - Generate reporting by notice window
+
+
+## Mailbox Draft Reconciliation / Recovery
+
+**Status:** CLOSED
+
+A temporary mailbox reconciliation utility was created to recover from duplicate Outlook draft creation during development of the renewal email workflow.
+
+`mailbox_reconciliation.py` compares renewal messages in the shared mailbox for a specified processing month using:
+
+- normalized recipient email address
+- renewal PDF attachment filename
+
+Messages are classified as:
+
+- `DRAFT_ONLY`
+- `DUPLICATE_DRAFTS`
+- `SENT_ONLY`
+- `SEND_WITH_STALE_DRAFT`
+- `AMBIGUOUS`
+
+The utility supports a quarantine workflow for safely isolating duplicate or stale drafts without immediately deleting them.
+
+Example:
+
+```bash
+python src/mailbox_reconciliation.py --month 2608 --quarantine --dry-run
+```
+
+The dry-run should always be reviewed before performing mailbox changes.
+
+Cleanup candidates are moved to a separate mailbox folder rather than deleted, allowing them to be retained until the normal process has been successfully completed and verified.
+
+This utility is intended primarily as a recovery/troubleshooting tool and is not part of the normal monthly renewal workflow.

@@ -643,3 +643,44 @@ Optional filters:
 `python src/print_processor.py --dry-run`
 
 Use `--dry-run` to preview selected records without creating batch files.
+
+
+# Troubleshooting / Recovery
+
+## Mailbox Reconciliation
+
+`mailbox_reconciliation.py` is a recovery and troubleshooting utility used tgo company renewal drafts and sent messages for a specific processing month.
+
+It is not part of the normal monthly renewal workflow.
+
+### Generate a Reconciliation Report
+
+To perform a read-only mailbox reconciliation:
+
+```bash
+python src/mailbox_reconciliation.py --month 2608
+```
+
+This generates the reconciliation report without making changes to the mailbox.
+
+### Preview Quarantine Actions
+
+Before moving any messages, run the quarantine process in dry-run mode:
+
+```bash
+python src/mailbox_reconciliation.py --month 2608 --quarantine --dry-run
+```
+
+Review the reconciliation report and dry-run results before performing any mailbox-changing operation.
+
+### Quarantine Cleanup Candidates
+
+After the dry-run has been reviewed and validated:
+
+```bash
+python src/mailbox_reconciliation.py --month 2608 --quarantine
+```
+
+Cleanup candidates are moved to a separate quarantine folder rather then deleted.
+
+The quarantine folder should be retained until the normal renewal process for the processing month has been successfully completed and verified.
