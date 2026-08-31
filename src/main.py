@@ -1,5 +1,5 @@
 import argparse
-from logger import write_run_summary
+from logger import write_run_summary, write_exception_log
 import config as cfg
 from utils import (
     detect_location,
@@ -81,6 +81,9 @@ def main():
             for file_path in csv_files:
                 location = detect_location(file_path)
 
+                if location == "UNKNOWN":
+                    continue
+
                 if location.lower() == args.location:
                     filtered_files.append(file_path)
 
@@ -100,6 +103,19 @@ def main():
         # Determine Anderson/Muncie location from the file name.
         location = detect_location(file_path)
         print(f"  Detected location: {location}")
+
+        if location == "UNKNOWN":
+            write_exception_log(
+                log_path=cfg.EXCEPTION_LOG,
+                source_file=file_path.name,
+                location=location,
+                stage="LOCATION_DETECTION",
+                record={},
+                error_message="Unable to determine location from filename.",
+            )
+
+            print(f"⛔️ Skipping file due to unknown location: {file_path.name}\n")
+            continue
 
         # Load the CSV into a DataFrame.
         # If the file cannot be read, skit it and continue
@@ -134,6 +150,8 @@ def main():
         if args.dry_run:
             pdf_count = 0
             pdf_error_count = 0
+            email_ready_count = 0
+            print_mail_count = 0
             status = "DRY_RUN"
 
             print_file_summary(
@@ -145,6 +163,8 @@ def main():
                 pdf_count=pdf_count,
                 pdf_error_count=pdf_error_count,
                 status=status,
+                email_ready_count=email_ready_count,
+                print_mail_count=print_mail_count,
             )
 
             write_run_summary(
@@ -158,12 +178,14 @@ def main():
                 api_enrichment_failures=api_error_count,
                 pdf_generation_failures=pdf_error_count,
                 status=status,
+                email_ready_count=email_ready_count,
+                print_mail_count=print_mail_count,
             )
 
             continue
 
         # Generate renewal PDFs and capture success/failure counts.
-        pdf_count, pdf_error_count = generate_renewal_pdfs(
+        pdf_count, pdf_error_count, email_ready_count, print_mail_count = generate_renewal_pdfs(
             records,
             file_path,
             location,
@@ -185,6 +207,8 @@ def main():
             pdf_count=pdf_count,
             pdf_error_count=pdf_error_count,
             status=status,
+            email_ready_count=email_ready_count,
+            print_mail_count=print_mail_count
         )
 
         # Write the run-level summary log
@@ -199,6 +223,8 @@ def main():
             api_enrichment_failures=api_error_count,
             pdf_generation_failures=pdf_error_count,
             status=status,
+            email_ready_count=email_ready_count,
+            print_mail_count=print_mail_count,
         )
 
         # Move successfully processed source CSV out of the incoming folder

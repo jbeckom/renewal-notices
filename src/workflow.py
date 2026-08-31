@@ -1,12 +1,20 @@
 import pandas as pd
 import config as cfg
 from api_client import enrich_record_with_mailing_address
-from logger import write_pdf_detail, write_exception_log
 from pdf_generator import generate_renewal_notice_pdf
+from email_builder import build_email_queue_values
+from logger import (
+    write_pdf_detail,
+    write_exception_log,
+    write_email_queue,
+    write_print_queue,
+)
 from utils import (
     build_pdf_filename,
     build_output_directory,
     validate_record,
+    get_notice_window,
+    get_delivery_action,
 )
 
 
@@ -83,6 +91,8 @@ def generate_renewal_pdfs(records, file_path, location):
 
     pdf_count = 0
     pdf_error_count = 0
+    email_ready_count = 0
+    print_mail_count = 0
 
     for record in records:
         output_dir = build_output_directory(
@@ -142,6 +152,49 @@ def generate_renewal_pdfs(records, file_path, location):
                 status="CREATED",
             )
 
+            notice_window = get_notice_window(
+                expiration_date=record["expiration_date_raw"],
+                run_date=record["run_date_raw"],
+            )
+
+            delivery_action = get_delivery_action(
+                notice_window=notice_window,
+                has_email=bool(record.get("email")),
+            )
+
+            if delivery_action in ["EMAIL_ONLY", "EMAIL_AND_PRINT"]:
+                email_values = build_email_queue_values(
+                    record,
+                    renewal_pdf_path,
+                    cfg.COMPANY_INFO[location],
+                )
+                
+                email_ready_count += 1
+
+                write_email_queue(
+                    log_path=cfg.EMAIL_QUEUE_LOG,
+                    source_file=file_path.name,
+                    record=record,
+                    pdf_path=renewal_pdf_path,
+                    subject=email_values["subject"],
+                    body=email_values["body"],
+                    delivery_method="EMAIL",
+                    status="READY",
+                    notice_window=notice_window,
+                )
+
+            if delivery_action in ["PRINT_MAIL", "EMAIL_AND_PRINT"]:
+                print_mail_count += 1
+
+                write_print_queue(
+                    log_path=cfg.PRINT_QUEUE_LOG,
+                    source_file=file_path.name,
+                    record=record,
+                    pdf_path=renewal_pdf_path,
+                    notice_window=notice_window,
+                    delivery_action=delivery_action
+                )
+
             pdf_count += 1 
 
         except Exception as e:
@@ -170,7 +223,7 @@ def generate_renewal_pdfs(records, file_path, location):
                 f"Account {record['account_number']}: {e}"
             )
 
-    return pdf_count, pdf_error_count
+    return pdf_count, pdf_error_count, email_ready_count, print_mail_count
 
 
 def print_file_summary(
@@ -182,6 +235,8 @@ def print_file_summary(
         pdf_count,
         pdf_error_count,
         status,
+        email_ready_count,
+        print_mail_count,
 ):
     """
     Print a clean runtime summary for one processed file.
@@ -197,6 +252,8 @@ def print_file_summary(
     print(f"Renewal PDFs created: {pdf_count}")
     print(f"PDF generation failures: {pdf_error_count}")
     print(f"Status: {status}")
+    print(f"Email ready: {email_ready_count}")
+    print(f"Print/mail needed: {print_mail_count}")
     print("-" * 50)
 
 

@@ -160,21 +160,26 @@ def build_renewal_record(row: pd.Series, location: str) -> dict:
     """
 
     expiration_date = pd.to_datetime(row["SCA End Date"]).date()
-    coverage_through = expiration_date + relativedelta(years=1)
+    # coverage_through = expiration_date + relativedelta(years=1)
+    run_date_raw = date.today()
+    expiration_date_raw = pd.to_datetime(row.get("SCA End Date")).date()
 
     return {
         "location": location,
-        "run_date": date.today().strftime("%-m/%-d/%Y"),
+        "run_date": run_date_raw.strftime("%-m/%-d/%Y"),
+        "run_date_raw": run_date_raw,
         "account_number": clean_id(row["Customer #"]),
         "agreement_id": clean_id(row["#ID"]),
         "customer_name": build_customer_name(row),
         "service_address": build_service_address(row),
         "billing_address": None,
         "agreement_type": clean_text(row["Title"]),
-        "expiration_date": format_date(row["SCA End Date"]),
-        "coverage_through": coverage_through.strftime("%-m/%-d/%Y"),
-        "payment_due_date": expiration_date.strftime("%-m/%-d/%Y"),
+        "expiration_date": format_date(expiration_date_raw),
+        "expiration_date_raw": expiration_date_raw,
+        "coverage_through": format_date(expiration_date_raw),
+        "payment_due_date": format_date(expiration_date_raw),
         "total_price": format_currency(row["Total Annual Fee"]),
+        "email": clean_text(row.get("Customer Email")),
     }
 
 def build_renewal_records(df: pd.DataFrame, location: str) -> list[dict]:
@@ -284,3 +289,47 @@ def validate_record(record: dict) -> list[str]:
             errors.append(f"Missing required field: {field}")
 
     return errors
+
+
+def get_notice_window(expiration_date, run_date) -> str:
+    """
+    Determine notice window based on expiration month relative to run month.
+    """
+
+    month_delta = (
+        (expiration_date.year - run_date.year) * 12
+        + expiration_date.month
+        - run_date.month
+    )
+
+    if month_delta == 1:
+        return "30_DAY"
+    
+    if month_delta == 2:
+        return "60_DAY"
+    
+    if month_delta == 3:
+        return "90_DAY"
+    
+    return "OTHER"
+
+
+def get_delivery_action(notice_window: str, has_email: bool) -> str:
+    """
+    Determine delivery action based on notice window and email availability.
+    """
+
+    if notice_window == "30_DAY":
+        if has_email:
+            return "EMAIL_AND_PRINT"
+        return "PRINT_MAIL"
+    
+    if notice_window in ["60_DAY", "90_DAY"]:
+        if has_email:
+            return "EMAIL_ONLY"
+        return "PRINT_MAIL"
+    
+    if has_email:
+        return "EMAIL_ONLY"
+    
+    return "PRINT_MAIL"

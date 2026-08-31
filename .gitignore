@@ -8,3 +8,4 @@ logs/
 data/incoming/
 data/archive/
 data/processed/
+.graph_token_cache.bin

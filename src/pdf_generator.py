@@ -353,14 +353,53 @@ def generate_renewal_notice_pdf(record: dict, output_path: Path, company_info: d
     c.setFont(PDF_FONT, 9)
     c.drawString(check_x, remit_y - 18, "[  ] Check")
 
-    c.setFont(PDF_FONT, 8)
-    c.drawString(check_x, remit_y - 32, f"Payable to: {PAYABLE_TO}")
+    c.setFont(PDF_FONT_BOLD, 8)
+    c.drawString(
+        check_x,
+        remit_y - 40,
+        f"Payable to:"
+    )
 
     c.setFont(PDF_FONT, 8)
-    c.drawString(check_x, remit_y - 55, "DL State: ______________")
-    c.drawString(check_x, remit_y - 75, "DL #: _____________________________")
-    c.drawString(check_x, remit_y - 95, "DL Exp: __________________")
-    c.drawString(check_x, remit_y - 115, "DOB: __________________")
+    c.drawString(
+        check_x,
+        remit_y - 55,
+        PAYABLE_TO
+    )
+
+    # c.setFont(PDF_FONT, 8)
+    # c.drawString(check_x, remit_y - 55, "DL State: ______________")
+    # c.drawString(check_x, remit_y - 75, "DL #: _____________________________")
+    # c.drawString(check_x, remit_y - 95, "DL Exp: __________________")
+    # c.drawString(check_x, remit_y - 115, "DOB: __________________")
+
+    # Mail payment address
+    address = company_info.get("address", "")
+    address_parts = address.split(",", 1)
+
+    c.setFont(PDF_FONT_BOLD, 8)
+    c.drawString(check_x, remit_y - 72, "Mail payment to:")
+
+    c.setFont(PDF_FONT, 8)
+    c.drawString(
+        check_x,
+        remit_y - 87,
+        company_info["name"]
+    )
+
+    if len(address_parts) > 0:
+        c.drawString(
+            check_x, 
+            remit_y - 102,
+            address_parts[0].strip()
+        )
+
+    if len(address_parts) > 1:
+        c.drawString(
+            check_x,
+            remit_y - 117,
+            address_parts[1].strip()
+        )
 
     ## --------------------------------------------------
     ## RIGHT SIDE - CREDIT CARD INFO
